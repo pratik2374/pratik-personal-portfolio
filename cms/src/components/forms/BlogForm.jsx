@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useCollection } from '../../hooks/useCollection'
-import ImageUploader from '../ui/ImageUploader'
+import ImagePickerField from '../ui/ImagePickerField'
 import SlugInput from '../ui/SlugInput'
 import TopBar from '../layout/TopBar'
 import { slugify } from '../../utils/slugify'
@@ -76,7 +76,7 @@ export default function BlogForm({ isEdit }) {
             />
           </Field>
           <Field label="Cover Image">
-            <ImageUploader value={form.image} onChange={v => set('image', v)} folder="blog" />
+            <ImagePickerField value={form.image} onChange={v => set('image', v)} folder="blog" />
           </Field>
           <Field label="Summary">
             <textarea

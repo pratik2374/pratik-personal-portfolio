@@ -11,7 +11,7 @@ const COLUMNS = [
 ]
 
 export default function BlogCollection() {
-  const { data, loading, update, remove } = useCollection('blog')
+  const { data, loading, update, remove, reorder } = useCollection('blog')
 
   const handleDelete = async (id) => {
     if (window.confirm('Delete this post?')) await remove(id)
@@ -23,7 +23,7 @@ export default function BlogCollection() {
 
   return (
     <>
-      <TopBar title="Blog" />
+      <TopBar title="Design Thoughts" />
       <div className="p-6">
         <div className="flex items-center justify-between mb-6">
           <p className="text-gray-mid text-sm">{data.length} items</p>
@@ -43,6 +43,7 @@ export default function BlogCollection() {
             basePath="/blog"
             onDelete={handleDelete}
             onStatusToggle={handleStatusToggle}
+            onReorder={reorder}
           />
         )}
       </div>

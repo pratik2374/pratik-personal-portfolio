@@ -11,7 +11,7 @@ const COLUMNS = [
 ]
 
 export default function ProjectsCollection() {
-  const { data, loading, update, remove } = useCollection('projects')
+  const { data, loading, update, remove, reorder } = useCollection('projects')
 
   return (
     <>
@@ -30,6 +30,7 @@ export default function ProjectsCollection() {
             basePath="/projects"
             onDelete={async (id) => { if (window.confirm('Delete?')) await remove(id) }}
             onStatusToggle={async (id, s) => await update(id, { status: s })}
+            onReorder={reorder}
           />
         )}
       </div>

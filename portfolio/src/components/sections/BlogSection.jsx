@@ -1,11 +1,14 @@
-import { useCollection } from '../hooks/useCollection'
-import BlogCard from '../components/ui/BlogCard'
+import { useCollection } from '../../hooks/useCollection'
+import BlogCard from '../ui/BlogCard'
+import { motion } from 'framer-motion'
 
-export default function Blog() {
+export default function BlogSection() {
   const { data: posts, loading } = useCollection('blog')
 
+  if (loading) return null
+  
   // Fallback to placeholder posts if the database is empty
-  const displayPosts = posts && posts.length > 0 ? posts : [
+  const displayPosts = posts && posts.length > 0 ? posts.slice(0, 3) : [
     {
       id: 'placeholder-1',
       title: 'The Future of Interface Design: Moving Beyond Screens',
@@ -30,25 +33,26 @@ export default function Blog() {
   ]
 
   return (
-    <div className="mb-24 pt-12 sm:pt-0">
-      <div className="mb-12">
-        <h1 className="font-poppins font-bold text-5xl sm:text-[72px] leading-[0.9] tracking-tighter text-white uppercase">
+    <section className="mb-24">
+      <motion.div 
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-50px" }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="mb-12"
+      >
+        <h2 className="font-poppins font-bold text-5xl sm:text-[72px] leading-[0.9] tracking-tighter text-white uppercase">
           DESIGN
-        </h1>
-        <h1 className="font-poppins font-bold text-5xl sm:text-[72px] leading-[0.9] tracking-tighter text-[#333333] uppercase">
+        </h2>
+        <h2 className="font-poppins font-bold text-5xl sm:text-[72px] leading-[0.9] tracking-tighter text-[#333333] uppercase">
           THOUGHTS
-        </h1>
+        </h2>
+      </motion.div>
+      <div className="flex flex-col gap-2">
+        {displayPosts.map(post => (
+          <BlogCard key={post.id} post={post} />
+        ))}
       </div>
-      
-      {loading ? (
-        <p className="text-gray-mid">Loading...</p>
-      ) : (
-        <div className="flex flex-col gap-2">
-          {displayPosts.map(post => (
-            <BlogCard key={post.id} post={post} />
-          ))}
-        </div>
-      )}
-    </div>
+    </section>
   )
 }

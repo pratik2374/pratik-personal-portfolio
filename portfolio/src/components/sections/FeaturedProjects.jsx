@@ -1,6 +1,6 @@
-import { Link } from 'react-router-dom'
 import { useCollection } from '../../hooks/useCollection'
 import ProjectCard from '../ui/ProjectCard'
+import { motion } from 'framer-motion'
 
 export default function FeaturedProjects() {
   const { data: projects, loading } = useCollection('projects')
@@ -8,15 +8,23 @@ export default function FeaturedProjects() {
   if (loading) return null
 
   return (
-    <section className="max-w-5xl mx-auto px-6 py-16 border-t border-white/5">
-      <div className="flex items-center justify-between mb-10">
-        <h2 className="font-poppins font-semibold text-2xl text-white">Projects</h2>
-        <Link to="/projects" className="text-accent-lime text-sm hover:underline">
-          View all →
-        </Link>
-      </div>
-      <div className="grid sm:grid-cols-2 gap-6">
-        {projects.slice(0, 2).map(project => (
+    <section className="mb-24">
+      <motion.div 
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-50px" }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="mb-12"
+      >
+        <h2 className="font-poppins font-bold text-5xl sm:text-[72px] leading-[0.9] tracking-tighter text-white uppercase">
+          RECENT
+        </h2>
+        <h2 className="font-poppins font-bold text-5xl sm:text-[72px] leading-[0.9] tracking-tighter text-[#333333] uppercase">
+          PROJECTS
+        </h2>
+      </motion.div>
+      <div className="flex flex-col gap-2">
+        {projects.map(project => (
           <ProjectCard key={project.id} project={project} />
         ))}
       </div>

@@ -1,13 +1,11 @@
 import { useCollection } from '../../hooks/useCollection'
-import ExperienceCard from '../ui/ExperienceCard'
+import ToolCard from '../ui/ToolCard'
 import { motion } from 'framer-motion'
 
-export default function ExperienceSection() {
-  const { data: experience, loading } = useCollection('experience', 'order')
+export default function ToolsSection() {
+  const { data: tools, loading } = useCollection('tools')
 
   if (loading) return null
-
-  const sorted = [...experience].sort((a, b) => (a.order ?? 99) - (b.order ?? 99))
 
   return (
     <section className="mb-24">
@@ -19,15 +17,15 @@ export default function ExperienceSection() {
         className="mb-12"
       >
         <h2 className="font-poppins font-bold text-5xl sm:text-[72px] leading-[0.9] tracking-tighter text-white uppercase">
-          12 YEARS OF
+          PREMIUM
         </h2>
         <h2 className="font-poppins font-bold text-5xl sm:text-[72px] leading-[0.9] tracking-tighter text-[#333333] uppercase">
-          EXPERIENCE
+          TOOLS
         </h2>
       </motion.div>
-      <div className="flex flex-col gap-2">
-        {sorted.map(exp => (
-          <ExperienceCard key={exp.id} experience={exp} />
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+        {tools.slice(0, 6).map(tool => (
+          <ToolCard key={tool.id} tool={tool} />
         ))}
       </div>
     </section>

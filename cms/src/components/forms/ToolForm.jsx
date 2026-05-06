@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useCollection } from '../../hooks/useCollection'
-import ImageUploader from '../ui/ImageUploader'
+import ImagePickerField from '../ui/ImagePickerField'
 import SlugInput from '../ui/SlugInput'
 import TopBar from '../layout/TopBar'
 import { slugify } from '../../utils/slugify'
@@ -61,7 +61,7 @@ export default function ToolForm({ isEdit }) {
               className="w-full bg-bg border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-accent-lime/50" />
           </Field>
           <Field label="Logo Image">
-            <ImageUploader value={form.image} onChange={v => set('image', v)} folder="tools" />
+            <ImagePickerField value={form.image} onChange={v => set('image', v)} folder="tools" />
           </Field>
           <Field label="Official URL">
             <input type="url" value={form.link} onChange={e => set('link', e.target.value)}

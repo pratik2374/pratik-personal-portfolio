@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useCollection } from '../../hooks/useCollection'
-import ImageUploader from '../ui/ImageUploader'
+import ImagePickerField from '../ui/ImagePickerField'
 import SlugInput from '../ui/SlugInput'
 import TopBar from '../layout/TopBar'
 import { slugify } from '../../utils/slugify'
@@ -62,7 +62,7 @@ export default function ProjectForm({ isEdit }) {
               placeholder="https://github.com/..." />
           </Field>
           <Field label="Cover Image">
-            <ImageUploader value={form.image} onChange={v => set('image', v)} folder="projects" />
+            <ImagePickerField value={form.image} onChange={v => set('image', v)} folder="projects" />
           </Field>
           <Field label="Description">
             <textarea value={form.description} onChange={e => set('description', e.target.value)} rows={4}

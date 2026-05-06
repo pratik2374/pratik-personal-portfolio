@@ -1,35 +1,60 @@
-import { Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
 
 export default function ProjectCard({ project }) {
-  return (
-    <div className="group bg-card rounded-2xl overflow-hidden border border-white/5 hover:border-accent-lime/20 transition-all duration-300">
-      {project.image && (
-        <div className="aspect-video overflow-hidden">
+  const content = (
+    <>
+      <div className="w-20 h-20 sm:w-28 sm:h-28 shrink-0 overflow-hidden rounded-xl border border-white/10">
+        {project.image ? (
           <img
             src={project.image}
             alt={project.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
-        </div>
-      )}
-      <div className="p-6">
-        <h3 className="font-poppins font-semibold text-lg text-white mb-2 group-hover:text-accent-lime transition-colors">
-          {project.title}
-        </h3>
-        <p className="text-gray-mid text-sm leading-relaxed mb-4 line-clamp-2">
-          {project.description}
-        </p>
-        {project.link && (
-          <a
-            href={project.link}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-2 text-accent-lime text-sm font-medium hover:underline"
-          >
-            View Project →
-          </a>
+        ) : (
+          <div className="w-full h-full bg-white/5 flex items-center justify-center">
+             <span className="text-white/20 text-xs">No Image</span>
+          </div>
         )}
       </div>
-    </div>
+      <div className="flex-1 min-w-0 pr-8">
+        <h3 className="font-poppins font-bold text-xl sm:text-2xl text-white mb-1 group-hover:text-accent-orange transition-colors truncate">
+          {project.title}
+        </h3>
+        <p className="text-gray-mid text-sm sm:text-base font-inter truncate">
+          {project.description || 'Project details'}
+        </p>
+      </div>
+      
+      {/* Arrow Icon */}
+      <div className="absolute right-6 top-1/2 -translate-y-1/2 text-accent-orange opacity-0 group-hover:opacity-100 transition-all transform group-hover:translate-x-1 group-hover:-translate-y-[calc(50%+4px)]">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="7" y1="17" x2="17" y2="7"></line>
+          <polyline points="7 7 17 7 17 17"></polyline>
+        </svg>
+      </div>
+    </>
+  )
+
+  const cardClasses = "group relative flex items-center gap-6 p-4 rounded-2xl hover:bg-white/5 border border-transparent hover:border-white/10 transition-all duration-300"
+  
+  const motionProps = {
+    initial: { opacity: 0, y: 20 },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true, margin: "-50px" },
+    transition: { duration: 0.5, ease: "easeOut" }
+  }
+
+  if (project.link) {
+    return (
+      <motion.a href={project.link} target="_blank" rel="noreferrer" className={cardClasses} {...motionProps}>
+        {content}
+      </motion.a>
+    )
+  }
+
+  return (
+    <motion.div className={cardClasses} {...motionProps}>
+      {content}
+    </motion.div>
   )
 }

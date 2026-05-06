@@ -11,7 +11,7 @@ const COLUMNS = [
 ]
 
 export default function ExperienceCollection() {
-  const { data, loading, update, remove } = useCollection('experience')
+  const { data, loading, update, remove, reorder } = useCollection('experience')
 
   return (
     <>
@@ -30,6 +30,7 @@ export default function ExperienceCollection() {
             basePath="/experience"
             onDelete={async (id) => { if (window.confirm('Delete?')) await remove(id) }}
             onStatusToggle={async (id, s) => await update(id, { status: s })}
+            onReorder={reorder}
           />
         )}
       </div>

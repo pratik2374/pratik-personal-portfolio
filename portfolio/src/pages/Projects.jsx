@@ -5,13 +5,20 @@ export default function Projects() {
   const { data: projects, loading } = useCollection('projects')
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-16">
-      <h1 className="font-poppins font-bold text-4xl text-white mb-4">Projects</h1>
-      <p className="text-gray-mid mb-12">Things I've built.</p>
+    <div className="mb-24 pt-12 sm:pt-0">
+      <div className="mb-12">
+        <h1 className="font-poppins font-bold text-5xl sm:text-[72px] leading-[0.9] tracking-tighter text-white uppercase">
+          ALL
+        </h1>
+        <h1 className="font-poppins font-bold text-5xl sm:text-[72px] leading-[0.9] tracking-tighter text-[#333333] uppercase">
+          PROJECTS
+        </h1>
+      </div>
+      
       {loading ? (
         <p className="text-gray-mid">Loading...</p>
       ) : (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-2 gap-6">
+        <div className="flex flex-col gap-2">
           {projects.map(project => (
             <ProjectCard key={project.id} project={project} />
           ))}

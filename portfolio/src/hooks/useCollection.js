@@ -10,12 +10,21 @@ export function useCollection(collectionName, orderField = 'createdAt') {
   useEffect(() => {
     const q = query(
       collection(db, collectionName),
-      where('status', '==', 'live'),
-      orderBy(orderField, 'desc')
+      where('status', '==', 'live')
     )
     getDocs(q)
       .then(snapshot => {
-        setData(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })))
+        let docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+        
+        docs.sort((a, b) => {
+          const valA = a[orderField]?.toMillis ? a[orderField].toMillis() : a[orderField]
+          const valB = b[orderField]?.toMillis ? b[orderField].toMillis() : b[orderField]
+          if (valA < valB) return 1
+          if (valA > valB) return -1
+          return 0
+        })
+        
+        setData(docs)
       })
       .catch(setError)
       .finally(() => setLoading(false))

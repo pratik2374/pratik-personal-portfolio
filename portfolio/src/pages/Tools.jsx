@@ -5,9 +5,16 @@ export default function Tools() {
   const { data: tools, loading } = useCollection('tools')
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-16">
-      <h1 className="font-poppins font-bold text-4xl text-white mb-4">Tools</h1>
-      <p className="text-gray-mid mb-12">My everyday toolkit.</p>
+    <div className="mb-24 pt-12 sm:pt-0">
+      <div className="mb-12">
+        <h1 className="font-poppins font-bold text-5xl sm:text-[72px] leading-[0.9] tracking-tighter text-white uppercase">
+          PREMIUM
+        </h1>
+        <h1 className="font-poppins font-bold text-5xl sm:text-[72px] leading-[0.9] tracking-tighter text-[#333333] uppercase">
+          TOOLS
+        </h1>
+      </div>
+      
       {loading ? (
         <p className="text-gray-mid">Loading...</p>
       ) : (

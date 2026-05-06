@@ -1,11 +1,18 @@
 {
-  "projects": { "default": "personal-portfolio-ac2cd" },
+  "projects": {
+    "default": "personal-portfolio-ac2cd"
+  },
   "targets": {
     "personal-portfolio-ac2cd": {
       "hosting": {
-        "portfolio": ["personal-portfolio-ac2cd"],
-        "cms": ["portfolio-cms-admin"]
+        "portfolio": [
+          "personal-portfolio-ac2cd"
+        ],
+        "cms": [
+          "portfolio-cms-admin"
+        ]
       }
     }
-  }
+  },
+  "etags": {}
 }

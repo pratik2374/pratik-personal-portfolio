@@ -20,4 +20,9 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
+  
+  .stroke-text {
+    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.2);
+    color: transparent;
+  }
 }

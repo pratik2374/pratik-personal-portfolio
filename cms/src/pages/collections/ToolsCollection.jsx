@@ -11,7 +11,7 @@ const COLUMNS = [
 ]
 
 export default function ToolsCollection() {
-  const { data, loading, update, remove } = useCollection('tools')
+  const { data, loading, update, remove, reorder } = useCollection('tools')
 
   return (
     <>
@@ -30,6 +30,7 @@ export default function ToolsCollection() {
             basePath="/tools"
             onDelete={async (id) => { if (window.confirm('Delete?')) await remove(id) }}
             onStatusToggle={async (id, s) => await update(id, { status: s })}
+            onReorder={reorder}
           />
         )}
       </div>

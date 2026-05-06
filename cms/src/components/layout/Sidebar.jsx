@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom'
 
 const collections = [
-  { path: '/blog', label: 'Blog', count: null },
+  { path: '/blog', label: 'Design Thoughts', count: null },
   { path: '/projects', label: 'Projects', count: null },
   { path: '/tools', label: 'Tools', count: null },
   { path: '/experience', label: 'Experience', count: null },

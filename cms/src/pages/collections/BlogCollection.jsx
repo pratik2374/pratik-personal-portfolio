@@ -13,8 +13,8 @@ const COLUMNS = [
 export default function BlogCollection() {
   const { data, loading, update, remove, reorder } = useCollection('blog')
 
-  const handleDelete = async (id) => {
-    if (window.confirm('Delete this post?')) await remove(id)
+  const handleDelete = async (id, skipConfirm) => {
+    if (skipConfirm || window.confirm('Delete this post?')) await remove(id)
   }
 
   const handleStatusToggle = async (id, newStatus) => {

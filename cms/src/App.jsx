@@ -7,6 +7,7 @@ import BlogCollection from './pages/collections/BlogCollection'
 import ProjectsCollection from './pages/collections/ProjectsCollection'
 import ToolsCollection from './pages/collections/ToolsCollection'
 import ExperienceCollection from './pages/collections/ExperienceCollection'
+import MessagesCollection from './pages/collections/MessagesCollection'
 import Settings from './pages/Settings'
 import BlogForm from './components/forms/BlogForm'
 import ProjectForm from './components/forms/ProjectForm'
@@ -44,6 +45,7 @@ export default function App() {
                   <Route path="experience/new" element={<ExperienceForm />} />
                   <Route path="experience/:id" element={<ExperienceForm isEdit />} />
                   <Route path="settings" element={<Settings />} />
+                  <Route path="messages" element={<MessagesCollection />} />
                 </Routes>
               </CmsLayout>
             </ProtectedRoute>

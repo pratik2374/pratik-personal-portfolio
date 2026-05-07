@@ -5,6 +5,7 @@ const collections = [
   { path: '/projects', label: 'Projects', count: null },
   { path: '/tools', label: 'Tools', count: null },
   { path: '/experience', label: 'Experience', count: null },
+  { path: '/messages', label: 'Messages', count: null },
 ]
 
 export default function Sidebar() {

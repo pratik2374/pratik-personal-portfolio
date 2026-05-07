@@ -1,5 +1,6 @@
 import { useSettingsContext } from '../../context/SettingsContext'
 import { motion } from 'framer-motion'
+import { Link } from 'react-router-dom'
 
 export default function Hero() {
   const settings = useSettingsContext()
@@ -64,8 +65,8 @@ export default function Hero() {
         transition={{ duration: 0.6, delay: 0.6, ease: "easeOut" }}
         className="grid grid-cols-1 sm:grid-cols-2 gap-6"
       >
-        {/* Orange Card */}
-        <div className="bg-accent-orange rounded-2xl p-6 relative overflow-hidden group hover:-translate-y-1 transition-transform">
+        {/* Orange Card → Experience */}
+        <Link to="/experience" className="bg-accent-orange rounded-2xl p-6 relative overflow-hidden group hover:-translate-y-1 transition-transform block cursor-pointer">
           <div className="absolute top-4 left-4 w-10 h-10 border border-white/20 rounded-full flex items-center justify-center">
              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
           </div>
@@ -77,10 +78,10 @@ export default function Hero() {
           <div className="absolute bottom-4 right-4 text-white opacity-0 group-hover:opacity-100 transition-opacity">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
           </div>
-        </div>
+        </Link>
 
-        {/* Lime Card */}
-        <div className="bg-accent-lime rounded-2xl p-6 relative overflow-hidden group hover:-translate-y-1 transition-transform">
+        {/* Lime Card → Projects */}
+        <Link to="/projects" className="bg-accent-lime rounded-2xl p-6 relative overflow-hidden group hover:-translate-y-1 transition-transform block cursor-pointer">
           {/* SVG background zig-zag lines */}
           <svg className="absolute inset-0 w-full h-full text-black/10" preserveAspectRatio="none" viewBox="0 0 200 100">
              <path d="M0 50 L 50 10 L 100 90 L 150 10 L 200 50" fill="none" stroke="currentColor" strokeWidth="2" />
@@ -96,7 +97,7 @@ export default function Hero() {
           <div className="absolute bottom-4 right-4 text-bg opacity-0 group-hover:opacity-100 transition-opacity relative z-10">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
           </div>
-        </div>
+        </Link>
       </motion.div>
     </section>
   )

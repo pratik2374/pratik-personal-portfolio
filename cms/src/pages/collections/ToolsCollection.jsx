@@ -28,7 +28,7 @@ export default function ToolsCollection() {
             columns={COLUMNS}
             data={data}
             basePath="/tools"
-            onDelete={async (id) => { if (window.confirm('Delete?')) await remove(id) }}
+            onDelete={async (id, skipConfirm) => { if (skipConfirm || window.confirm('Delete?')) await remove(id) }}
             onStatusToggle={async (id, s) => await update(id, { status: s })}
             onReorder={reorder}
           />

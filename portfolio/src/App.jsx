@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { SettingsProvider } from './context/SettingsContext'
+import ScrollToTop from './components/layout/ScrollToTop'
 import FloatingNav from './components/layout/FloatingNav'
 import ProfileSidebar from './components/layout/ProfileSidebar'
 import Footer from './components/layout/Footer'
@@ -14,6 +15,7 @@ export default function App() {
   return (
     <SettingsProvider>
       <BrowserRouter>
+        <ScrollToTop />
         <div className="min-h-screen bg-bg text-white relative font-inter">
           <FloatingNav />
           <div className="max-w-6xl mx-auto px-4 sm:px-6 py-24 sm:py-32 flex flex-col lg:flex-row gap-12 relative">

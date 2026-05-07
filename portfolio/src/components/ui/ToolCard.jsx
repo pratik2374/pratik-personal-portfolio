@@ -13,7 +13,7 @@ export default function ToolCard({ tool }) {
         </div>
       )}
       <div>
-        <p className="font-poppins font-bold text-white text-lg group-hover:text-accent-lime transition-colors mb-1">
+        <p className="font-poppins font-bold text-white text-lg group-hover:text-accent-orange transition-colors mb-1">
           {tool.title}
         </p>
         <p className="text-gray-mid font-inter text-sm line-clamp-2 leading-relaxed">{tool.description}</p>

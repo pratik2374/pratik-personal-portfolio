@@ -1,6 +1,28 @@
 import { useState, useRef } from 'react'
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
-import { storage } from '../../lib/firebase'
+import { supabase } from '../../lib/supabase'
+
+// Compress + convert to WebP client-side before uploading
+function compressToWebP(file, maxWidth = 1200, quality = 0.82) {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    const objectUrl = URL.createObjectURL(file)
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl)
+      const scale = Math.min(1, maxWidth / img.width)
+      const canvas = document.createElement('canvas')
+      canvas.width = Math.round(img.width * scale)
+      canvas.height = Math.round(img.height * scale)
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height)
+      canvas.toBlob(
+        blob => blob ? resolve(blob) : reject(new Error('Canvas toBlob failed')),
+        'image/webp',
+        quality
+      )
+    }
+    img.onerror = () => { URL.revokeObjectURL(objectUrl); reject(new Error('Image load failed')) }
+    img.src = objectUrl
+  })
+}
 
 export default function ImagePickerField({ value, onChange, folder = 'uploads' }) {
   const [panelOpen, setPanelOpen] = useState(false)
@@ -9,43 +31,46 @@ export default function ImagePickerField({ value, onChange, folder = 'uploads' }
   const [uploadError, setUploadError] = useState('')
   const fileRef = useRef(null)
 
+  const closePanel = () => {
+    setPanelOpen(false)
+    setUploadError('')
+    setUrlInput('')
+    if (fileRef.current) fileRef.current.value = ''
+  }
+
   const handleFile = async (e) => {
     const file = e.target.files[0]
     if (!file) return
-    
+
     setUploadError('')
     setUploading(true)
 
     try {
-      const storageRef = ref(storage, `${folder}/${Date.now()}-${file.name}`)
-      
-      // Use uploadBytes instead of uploadBytesResumable
-      // It's a simpler POST request, more likely to succeed with CORS
-      const snapshot = await uploadBytes(storageRef, file)
-      const downloadUrl = await getDownloadURL(snapshot.ref)
-      
-      onChange(downloadUrl)
-      setUploading(false)
-      setPanelOpen(false)
+      const blob = await compressToWebP(file)
+      const path = `${folder}/${Date.now()}.webp`
+
+      const { error } = await supabase.storage
+        .from('media')
+        .upload(path, blob, { contentType: 'image/webp', upsert: false })
+
+      if (error) throw error
+
+      const { data } = supabase.storage.from('media').getPublicUrl(path)
+      onChange(data.publicUrl)
+      closePanel()
     } catch (err) {
-      console.error('Upload error details:', err)
-      // Provide a more helpful error message
-      let msg = err.message || 'Upload failed'
-      if (err.code === 'storage/unauthorized') msg = 'Permission denied. Please check Firebase Storage rules.'
-      if (err.code === 'storage/canceled') msg = 'Upload canceled.'
-      if (msg.includes('Failed to fetch')) msg = 'CORS error. Please allow localhost in Firebase Storage settings.'
-      
-      setUploadError(msg)
+      console.error('Upload error:', err)
+      setUploadError(err.message || 'Upload failed')
+    } finally {
       setUploading(false)
     }
   }
 
   const handleUrlApply = () => {
-    if (urlInput.trim()) {
-      onChange(urlInput.trim())
-      setUrlInput('')
-      setPanelOpen(false)
-    }
+    const url = urlInput.trim()
+    if (!url) return
+    onChange(url)
+    closePanel()
   }
 
   const handleClear = (e) => {
@@ -69,7 +94,6 @@ export default function ImagePickerField({ value, onChange, folder = 'uploads' }
         {value ? (
           <>
             <img src={value} alt="preview" className="w-full h-full object-cover" />
-            {/* Hover overlay */}
             <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
@@ -78,7 +102,6 @@ export default function ImagePickerField({ value, onChange, folder = 'uploads' }
               </svg>
               <span className="text-white text-xs font-medium">Choose Image</span>
             </div>
-            {/* Remove button */}
             <button
               type="button"
               onClick={handleClear}
@@ -102,15 +125,11 @@ export default function ImagePickerField({ value, onChange, folder = 'uploads' }
       {/* Picker Panel */}
       {panelOpen && (
         <>
-          {/* Backdrop */}
-          <div className="fixed inset-0 z-40" onClick={() => setPanelOpen(false)} />
-          
-          {/* Panel */}
+          <div className="fixed inset-0 z-40" onClick={closePanel} />
           <div className="absolute right-0 top-full mt-2 z-50 w-72 bg-[#1a1a1a] border border-white/10 rounded-xl shadow-2xl overflow-hidden">
-            {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
               <span className="text-white text-sm font-medium">Image</span>
-              <button onClick={() => setPanelOpen(false)} className="text-gray-dark hover:text-white transition-colors">
+              <button onClick={closePanel} className="text-gray-dark hover:text-white transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="18" y1="6" x2="6" y2="18"></line>
                   <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -118,7 +137,6 @@ export default function ImagePickerField({ value, onChange, folder = 'uploads' }
               </button>
             </div>
 
-            {/* Current preview */}
             {value && (
               <div className="relative h-36 bg-[#111]">
                 <img src={value} alt="current" className="w-full h-full object-contain" />
@@ -132,7 +150,7 @@ export default function ImagePickerField({ value, onChange, folder = 'uploads' }
                   {uploading ? (
                     <>
                       <div className="w-3 h-3 border border-white/30 border-t-white rounded-full animate-spin"></div>
-                      Uploading...
+                      Compressing & uploading…
                     </>
                   ) : (
                     <>
@@ -155,19 +173,18 @@ export default function ImagePickerField({ value, onChange, folder = 'uploads' }
                 />
               </label>
 
-              {/* Error */}
               {uploadError && (
                 <div className="p-2 bg-red-400/10 border border-red-400/20 rounded-lg">
                   <p className="text-red-400 text-[11px] text-center">{uploadError}</p>
                 </div>
               )}
 
-              {/* URL Input */}
+              {/* URL paste */}
               <div className="space-y-2">
                 <p className="text-xs text-gray-dark font-medium">Or paste image URL</p>
                 <div className="flex gap-2">
                   <input
-                    type="url"
+                    type="text"
                     value={urlInput}
                     onChange={e => setUrlInput(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleUrlApply()}
@@ -184,11 +201,10 @@ export default function ImagePickerField({ value, onChange, folder = 'uploads' }
                 </div>
               </div>
 
-              {/* Clear */}
               {value && (
                 <button
                   type="button"
-                  onClick={() => { onChange(''); setPanelOpen(false) }}
+                  onClick={() => { onChange(''); closePanel() }}
                   className="w-full text-xs text-red-400/60 hover:text-red-400 transition-colors py-1"
                 >
                   Remove Image

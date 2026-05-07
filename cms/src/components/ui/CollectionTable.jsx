@@ -5,11 +5,39 @@ import { Link } from 'react-router-dom'
 export default function CollectionTable({ columns, data, basePath, onDelete, onStatusToggle, onReorder }) {
   const [dragIndex, setDragIndex] = useState(null)
   const [overIndex, setOverIndex] = useState(null)
+  const [selected, setSelected] = useState(new Set())
 
   if (!data.length) {
     return <p className="text-gray-mid text-sm px-6 py-12 text-center">No items yet. Add your first one.</p>
   }
 
+  // ── Selection ──
+  const toggleSelect = (id) => {
+    setSelected(prev => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+  }
+
+  const toggleAll = () => {
+    if (selected.size === data.length) {
+      setSelected(new Set())
+    } else {
+      setSelected(new Set(data.map(r => r.id)))
+    }
+  }
+
+  const handleBulkDelete = async () => {
+    if (!selected.size) return
+    if (!window.confirm(`Delete ${selected.size} item(s)?`)) return
+    for (const id of selected) {
+      await onDelete(id, true) // pass true to skip individual confirm
+    }
+    setSelected(new Set())
+  }
+
+  // ── Drag & Drop ──
   const handleDragStart = (e, index) => {
     setDragIndex(index)
     e.dataTransfer.effectAllowed = 'move'
@@ -43,12 +71,37 @@ export default function CollectionTable({ columns, data, basePath, onDelete, onS
 
   return (
     <div className="overflow-x-auto">
+      {/* Bulk action bar */}
+      {selected.size > 0 && (
+        <div className="flex items-center gap-3 px-4 py-2.5 mb-2 bg-white/[0.03] border border-white/5 rounded-lg">
+          <span className="text-white text-xs font-medium">{selected.size} selected</span>
+          <button
+            onClick={handleBulkDelete}
+            className="px-3 py-1.5 bg-red-500/20 border border-red-400/20 text-red-400 text-[11px] font-semibold rounded-lg hover:bg-red-500/30 transition-colors"
+          >
+            Delete Selected
+          </button>
+          <button
+            onClick={() => setSelected(new Set())}
+            className="text-gray-mid text-[11px] hover:text-white transition-colors ml-auto"
+          >
+            Clear
+          </button>
+        </div>
+      )}
+
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-white/5">
             <th className="text-left text-xs text-gray-dark font-normal px-3 py-3 w-6"></th>
             <th className="text-left text-xs text-gray-dark font-normal px-4 py-3 w-10">
-              <input type="checkbox" className="accent-accent-lime" />
+              <input
+                type="checkbox"
+                checked={data.length > 0 && selected.size === data.length}
+                onChange={toggleAll}
+                className="accent-accent-lime"
+                title="Select all"
+              />
             </th>
             {columns.map(col => (
               <th key={col.key} className="text-left text-xs text-gray-dark font-normal px-4 py-3">
@@ -70,7 +123,7 @@ export default function CollectionTable({ columns, data, basePath, onDelete, onS
               className={`border-b border-white/5 group transition-colors cursor-grab active:cursor-grabbing ${
                 overIndex === index && dragIndex !== index
                   ? 'bg-white/10 border-accent-lime/40'
-                  : 'hover:bg-white/[0.02]'
+                  : selected.has(row.id) ? 'bg-white/[0.04]' : 'hover:bg-white/[0.02]'
               } ${dragIndex === index ? 'opacity-40' : ''}`}
             >
               {/* Drag Handle */}
@@ -85,7 +138,12 @@ export default function CollectionTable({ columns, data, basePath, onDelete, onS
                 </svg>
               </td>
               <td className="px-4 py-3">
-                <input type="checkbox" className="accent-accent-lime" />
+                <input
+                  type="checkbox"
+                  checked={selected.has(row.id)}
+                  onChange={() => toggleSelect(row.id)}
+                  className="accent-accent-lime"
+                />
               </td>
               {columns.map(col => (
                 <td key={col.key} className="px-4 py-3 text-gray-mid max-w-xs truncate">

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import {
-  collection, query, orderBy, getDocs,
+  collection, getDocs,
   addDoc, updateDoc, deleteDoc, doc, serverTimestamp, getDoc, writeBatch,
 } from 'firebase/firestore'
 import { db } from '../lib/firebase'
@@ -13,18 +13,24 @@ export function useCollection(collectionName) {
   const fetchAll = useCallback(async () => {
     setLoading(true)
     try {
-      // Try order field first, fall back to createdAt
-      const q = query(collection(db, collectionName), orderBy('createdAt', 'desc'))
-      const snapshot = await getDocs(q)
+      const snapshot = await getDocs(collection(db, collectionName))
       const docs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }))
-      // Sort by 'order' field if present on any doc
+      // Sort by 'order' if present, otherwise by createdAt descending
       const hasOrder = docs.some(d => d.order !== undefined)
       if (hasOrder) {
         docs.sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity))
+      } else {
+        docs.sort((a, b) => {
+          const ta = a.createdAt?.toMillis?.() ?? 0
+          const tb = b.createdAt?.toMillis?.() ?? 0
+          return tb - ta
+        })
       }
       setData(docs)
+      setError(null)
     } catch (err) {
       setError(err)
+      console.error(`useCollection(${collectionName}):`, err)
     } finally {
       setLoading(false)
     }

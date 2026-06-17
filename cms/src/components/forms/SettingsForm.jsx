@@ -88,7 +88,7 @@ export default function SettingsForm() {
           <input type="text" value={form.bioSnippet} onChange={e => set('bioSnippet', e.target.value)} className={input} placeholder="A Software Engineer who has developed countless innovative solutions." />
         </Field>
         <Field label="Profile Avatar URL or Upload">
-          <ImagePickerField value={form.avatar} onChange={v => set('avatar', v)} folder="avatars" />
+          <ImagePickerField value={form.avatar} onChange={v => set('avatar', v)} folder="avatars" aspect="portrait" />
           <input type="url" value={form.avatar} onChange={e => set('avatar', e.target.value)}
             className={`${input} mt-2`} placeholder="Or paste image URL directly..." />
         </Field>

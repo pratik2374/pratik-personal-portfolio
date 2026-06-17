@@ -61,7 +61,7 @@ export default function ToolForm({ isEdit }) {
               className="w-full bg-bg border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-accent-lime/50" />
           </Field>
           <Field label="Logo Image">
-            <ImagePickerField value={form.image} onChange={v => set('image', v)} folder="tools" />
+            <ImagePickerField value={form.image} onChange={v => set('image', v)} folder="tools" aspect="square" />
           </Field>
           <Field label="Official URL">
             <input type="url" value={form.link} onChange={e => set('link', e.target.value)}

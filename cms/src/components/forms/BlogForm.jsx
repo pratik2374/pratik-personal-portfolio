@@ -5,8 +5,33 @@ import ImagePickerField from '../ui/ImagePickerField'
 import SlugInput from '../ui/SlugInput'
 import TopBar from '../layout/TopBar'
 import { slugify } from '../../utils/slugify'
+import ReactQuill from 'react-quill'
+import 'react-quill/dist/quill.snow.css'
 
 const EMPTY = { title: '', slug: '', status: 'draft', date: '', image: '', readTime: '', summary: '', content: '' }
+
+const QUILL_MODULES = {
+  toolbar: [
+    [{ header: [1, 2, 3, false] }],
+    [{ size: ['small', false, 'large', 'huge'] }],
+    ['bold', 'italic', 'underline', 'strike'],
+    [{ color: [] }, { background: [] }],
+    [{ list: 'ordered' }, { list: 'bullet' }],
+    [{ align: [] }],
+    ['blockquote', 'code-block'],
+    ['link', 'image'],
+    ['clean'],
+  ]
+}
+
+const QUILL_FORMATS = [
+  'header', 'size',
+  'bold', 'italic', 'underline', 'strike',
+  'color', 'background',
+  'list', 'align',
+  'blockquote', 'code-block',
+  'link', 'image'
+]
 
 export default function BlogForm({ isEdit }) {
   const { id } = useParams()
@@ -76,7 +101,7 @@ export default function BlogForm({ isEdit }) {
             />
           </Field>
           <Field label="Cover Image">
-            <ImagePickerField value={form.image} onChange={v => set('image', v)} folder="blog" />
+            <ImagePickerField value={form.image} onChange={v => set('image', v)} folder="blog" aspect="landscape" />
           </Field>
           <Field label="Summary">
             <textarea
@@ -84,11 +109,68 @@ export default function BlogForm({ isEdit }) {
               className="w-full bg-bg border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-accent-lime/50 resize-none"
             />
           </Field>
-          <Field label="Content (Markdown)">
-            <textarea
-              value={form.content} onChange={e => set('content', e.target.value)} rows={12}
-              className="w-full bg-bg border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white font-mono focus:outline-none focus:border-accent-lime/50 resize-y"
-            />
+          <Field label="Content (Rich Text / Word-like Editor)">
+            <style>{`
+              .custom-quill-editor .ql-editor {
+                min-height: 250px;
+                font-family: 'Inter', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+                color: #ffffff;
+              }
+              .custom-quill-editor .ql-editor.ql-blank::before {
+                color: rgba(255, 255, 255, 0.3) !important;
+                font-style: normal;
+              }
+              .ql-toolbar.ql-snow {
+                border-color: rgba(255, 255, 255, 0.1) !important;
+                background-color: #1c1a19;
+              }
+              .ql-container.ql-snow {
+                border-color: rgba(255, 255, 255, 0.1) !important;
+                background-color: #151312;
+              }
+              .ql-snow .ql-stroke {
+                stroke: #998f8f !important;
+              }
+              .ql-snow .ql-fill {
+                fill: #998f8f !important;
+              }
+              .ql-snow .ql-picker {
+                color: #998f8f !important;
+              }
+              .ql-snow .ql-picker-options {
+                background-color: #1c1a19 !important;
+                border-color: rgba(255, 255, 255, 0.1) !important;
+              }
+              .ql-snow .ql-picker-item:hover, .ql-snow .ql-picker-label:hover {
+                color: #c5ff41 !important;
+              }
+              .ql-snow .ql-picker-item:hover .ql-stroke, .ql-snow .ql-picker-label:hover .ql-stroke {
+                stroke: #c5ff41 !important;
+              }
+              .ql-snow.ql-toolbar button:hover, .ql-snow.ql-toolbar button:focus,
+              .ql-snow.ql-toolbar button.ql-active, .ql-snow.ql-toolbar .ql-picker-label.ql-active {
+                color: #c5ff41 !important;
+              }
+              .ql-snow.ql-toolbar button:hover .ql-stroke, .ql-snow.ql-toolbar button.ql-active .ql-stroke {
+                stroke: #c5ff41 !important;
+              }
+              .ql-snow.ql-toolbar button:hover .ql-fill, .ql-snow.ql-toolbar button.ql-active .ql-fill {
+                fill: #c5ff41 !important;
+              }
+            `}</style>
+            <div className="bg-bg border border-white/10 rounded-lg overflow-hidden text-white">
+              <ReactQuill
+                theme="snow"
+                value={form.content || ''}
+                onChange={v => set('content', v)}
+                modules={QUILL_MODULES}
+                formats={QUILL_FORMATS}
+                className="text-white bg-bg custom-quill-editor"
+                placeholder="Start writing your design thoughts like a Word document..."
+              />
+            </div>
           </Field>
           <div className="flex gap-3 pt-2">
             <button

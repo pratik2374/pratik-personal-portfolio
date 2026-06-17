@@ -46,4 +46,15 @@
     -webkit-text-stroke: 1px rgba(255, 255, 255, 0.2);
     color: transparent;
   }
+  
+  /* Quill Rich Text Alignments */
+  .ql-align-center {
+    text-align: center;
+  }
+  .ql-align-right {
+    text-align: right;
+  }
+  .ql-align-justify {
+    text-align: justify;
+  }
 }

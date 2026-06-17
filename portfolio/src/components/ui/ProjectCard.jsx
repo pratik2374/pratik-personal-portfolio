@@ -1,4 +1,8 @@
+import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { slugify } from '../../utils/slugify'
+
+const MotionLink = motion(Link)
 
 export default function ProjectCard({ project }) {
   const content = (
@@ -44,11 +48,13 @@ export default function ProjectCard({ project }) {
     transition: { duration: 0.5, ease: "easeOut" }
   }
 
-  if (project.link) {
+  const projectSlug = project.slug || (project.title ? slugify(project.title) : '')
+
+  if (projectSlug) {
     return (
-      <motion.a href={project.link} target="_blank" rel="noreferrer" className={cardClasses} {...motionProps}>
+      <MotionLink to={`/projects/${projectSlug}`} className={cardClasses} {...motionProps}>
         {content}
-      </motion.a>
+      </MotionLink>
     )
   }
 

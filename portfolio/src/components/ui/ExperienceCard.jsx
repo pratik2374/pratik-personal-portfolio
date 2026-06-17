@@ -1,4 +1,8 @@
+import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { slugify } from '../../utils/slugify'
+
+const MotionLink = motion(Link)
 
 export default function ExperienceCard({ experience }) {
   const content = (
@@ -34,11 +38,13 @@ export default function ExperienceCard({ experience }) {
     transition: { duration: 0.5, ease: "easeOut" }
   }
 
-  if (experience.link) {
+  const expSlug = experience.slug || (experience.companyName ? slugify(experience.companyName) : '')
+
+  if (expSlug) {
     return (
-      <motion.a href={experience.link} target="_blank" rel="noreferrer" className={cardClasses} {...motionProps}>
+      <MotionLink to={`/experience/${expSlug}`} className={cardClasses} {...motionProps}>
         {content}
-      </motion.a>
+      </MotionLink>
     )
   }
 

@@ -1,26 +1,62 @@
 import { useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import ReactMarkdown from 'react-markdown'
+import { PortableText } from '@portabletext/react'
 import { useDocumentBySlug } from '../hooks/useDocumentBySlug'
 import ContactForm from '../components/ui/ContactForm'
+import { urlFor } from '../lib/sanity'
 
-// Preprocessor to auto-parse raw image URLs into markdown image tags with optional float prefix
-function preprocessDescription(text) {
-  if (!text) return 'No content yet.'
-  const rawImageRegex = /(?<!\()(?:(left|right)\s*\|\s*)?(https?:\/\/[^\s)]+\.(?:png|jpg|jpeg|gif|webp)(?:\?[^\s)]+)?)(?!\))/gi
-  return text.replace(rawImageRegex, (match, align, url) => {
-    const alignment = align || 'center'
-    return `![${alignment}](${url})`
-  })
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
+
+// Custom components for Portable Text to style images and text
+const portableTextComponents = {
+  types: {
+    image: ({ value }) => {
+      if (!value?.asset?._ref) return null
+      return (
+        <figure className="my-10 flex flex-col items-center">
+          <div className="w-full rounded-xl border border-white/10 overflow-hidden shadow-lg bg-[#1c1a19] flex justify-center">
+            <img
+              src={urlFor(value).url()}
+              alt={value.alt || 'Blog Image'}
+              className="max-w-full h-auto max-h-[600px] object-contain"
+            />
+          </div>
+          {(value.caption || value.alt) && (
+            <figcaption className="mt-4 text-center text-sm text-[#998f8f] max-w-2xl">
+              {value.caption || value.alt}
+            </figcaption>
+          )}
+        </figure>
+      )
+    },
+    code: ({ value }) => {
+      return (
+        <div className="my-8 rounded-xl overflow-hidden bg-[#1e1e1e] border border-white/10 text-sm shadow-xl">
+          <div className="flex items-center px-4 py-2 bg-[#2d2d2d] text-gray-300 text-xs font-mono uppercase">
+            {value.language || 'code'}
+          </div>
+          <SyntaxHighlighter
+            language={value.language || 'javascript'}
+            style={atomDark}
+            customStyle={{ margin: 0, padding: '1.5rem', background: '#1e1e1e' }}
+          >
+            {value.code}
+          </SyntaxHighlighter>
+        </div>
+      )
+    }
+  }
 }
 
 export default function BlogPost() {
   const { slug } = useParams()
   const { doc: post, loading, error } = useDocumentBySlug('blog', slug)
 
+  // Handle date properly whether it's a string from Sanity or a Firebase timestamp
   const date = post?.date?.toDate
     ? post.date.toDate().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
-    : post?.date
+    : post?.date ? new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : ''
 
   // Dynamically update SEO meta tags & structured data
   useEffect(() => {
@@ -29,8 +65,8 @@ export default function BlogPost() {
     // 1. Update document title
     document.title = `${post.title} | Pratik Gond`
 
-    // 2. Update meta description (uses post summary or falls back to snippet of content)
-    const excerpt = post.summary || (post.content ? post.content.substring(0, 155).replace(/[#*`\n]/g, ' ') : 'Design thought blog post by Pratik Gond.')
+    // 2. Update meta description
+    const excerpt = post.summary || 'Design thought blog post by Pratik Gond.'
     let metaDesc = document.querySelector('meta[name="description"]')
     if (!metaDesc) {
       metaDesc = document.createElement('meta')
@@ -63,7 +99,7 @@ export default function BlogPost() {
         ogImage.setAttribute('property', 'og:image')
         document.head.appendChild(ogImage)
       }
-      ogImage.setAttribute('content', post.image)
+      ogImage.setAttribute('content', urlFor(post.image).width(1200).height(630).url())
     }
 
     // 4. Inject JSON-LD Schema Markup (BlogPosting) for Google Rich Snippets
@@ -80,7 +116,7 @@ export default function BlogPost() {
       "@context": "https://schema.org",
       "@type": "BlogPosting",
       "headline": post.title,
-      "image": post.image || "",
+      "image": post.image ? urlFor(post.image).url() : "",
       "datePublished": datePublished,
       "author": {
         "@type": "Person",
@@ -131,7 +167,7 @@ export default function BlogPost() {
 
       {post.image && (
         <div className="w-full aspect-[21/9] sm:h-[400px] rounded-2xl overflow-hidden mb-8 border border-white/10">
-          <img src={post.image} alt={post.title} className="w-full h-full object-cover" />
+          <img src={urlFor(post.image).url()} alt={post.title} className="w-full h-full object-cover" />
         </div>
       )}
       
@@ -151,48 +187,10 @@ export default function BlogPost() {
         prose-a:text-accent-orange prose-a:no-underline hover:prose-a:underline
         prose-code:text-accent-orange prose-code:bg-white/5 prose-code:px-1 prose-code:rounded
         prose-pre:bg-[#2d2a29] prose-pre:border prose-pre:border-white/10 mb-24">
-        {/<[a-z][\s\S]*>/i.test(post.content || '') ? (
-          <div dangerouslySetInnerHTML={{ __html: post.content }} />
+        {post.content ? (
+          <PortableText value={post.content} components={portableTextComponents} />
         ) : (
-          <ReactMarkdown
-            components={{
-              img: ({ node, ...props }) => {
-                let align = 'center'
-                let cleanAlt = props.alt || ''
-                
-                if (cleanAlt.startsWith('left|')) {
-                  align = 'left'
-                  cleanAlt = cleanAlt.substring(5)
-                } else if (cleanAlt.startsWith('right|')) {
-                  align = 'right'
-                  cleanAlt = cleanAlt.substring(6)
-                }
-
-                const wrapperClasses = align === 'left'
-                  ? 'sm:float-left sm:mr-6 my-4 max-w-full sm:max-w-[45%] block'
-                  : align === 'right'
-                  ? 'sm:float-right sm:ml-6 my-4 max-w-full sm:max-w-[45%] block'
-                  : 'block my-8 max-w-3xl mx-auto w-full'
-
-                return (
-                  <span className={`${wrapperClasses} clear-both`}>
-                    <img
-                      {...props}
-                      alt={cleanAlt}
-                      className="rounded-xl border border-white/10 shadow-lg object-cover w-full animate-fade-in"
-                    />
-                    {cleanAlt && cleanAlt !== 'left' && cleanAlt !== 'right' && cleanAlt !== 'center' && (
-                      <span className="block text-center text-xs text-[#666666] mt-2 font-poppins">
-                        {cleanAlt}
-                      </span>
-                    )}
-                  </span>
-                )
-              }
-            }}
-          >
-            {preprocessDescription(post.content)}
-          </ReactMarkdown>
+          <p>No content provided.</p>
         )}
       </div>
 

@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import ReactMarkdown from 'react-markdown'
+import { PortableText } from '@portabletext/react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useDocumentBySlug } from '../hooks/useDocumentBySlug'
 import ContactForm from '../components/ui/ContactForm'
+import { urlFor } from '../lib/sanity'
 
 // Helper to parse different video URL styles (YouTube, Vimeo, Loom, Direct Video URLs)
 function getEmbedUrl(url) {
@@ -127,7 +128,7 @@ export default function ExperienceDetail() {
         ) : (
           exp.image && (
             <div className="w-full aspect-video rounded-2xl overflow-hidden border border-white/10 bg-[#1c1a19]">
-              <img src={exp.image} alt={exp.companyName} className="w-full h-full object-cover" />
+              <img src={urlFor(exp.image).url()} alt={exp.companyName} className="w-full h-full object-cover" />
             </div>
           )
         )}
@@ -174,45 +175,11 @@ export default function ExperienceDetail() {
         prose-a:text-accent-orange prose-a:no-underline hover:prose-a:underline
         prose-code:text-accent-orange prose-code:bg-white/5 prose-code:px-1 prose-code:rounded
         prose-pre:bg-[#2d2a29] prose-pre:border prose-pre:border-white/10 mb-16">
-        <ReactMarkdown
-          components={{
-            img: ({ node, ...props }) => {
-              let align = 'center'
-              let cleanAlt = props.alt || ''
-              
-              if (cleanAlt.startsWith('left|')) {
-                align = 'left'
-                cleanAlt = cleanAlt.substring(5)
-              } else if (cleanAlt.startsWith('right|')) {
-                align = 'right'
-                cleanAlt = cleanAlt.substring(6)
-              }
-
-              const wrapperClasses = align === 'left'
-                ? 'sm:float-left sm:mr-6 my-4 max-w-full sm:max-w-[45%] block'
-                : align === 'right'
-                ? 'sm:float-right sm:ml-6 my-4 max-w-full sm:max-w-[45%] block'
-                : 'block my-8 max-w-3xl mx-auto w-full'
-
-              return (
-                <span className={`${wrapperClasses} clear-both`}>
-                  <img
-                    {...props}
-                    alt={cleanAlt}
-                    className="rounded-xl border border-white/10 shadow-lg object-cover w-full animate-fade-in"
-                  />
-                  {cleanAlt && cleanAlt !== 'left' && cleanAlt !== 'right' && cleanAlt !== 'center' && (
-                    <span className="block text-center text-xs text-[#666666] mt-2 font-poppins">
-                      {cleanAlt}
-                    </span>
-                  )}
-                </span>
-              )
-            }
-          }}
-        >
-          {preprocessDescription(exp.description)}
-        </ReactMarkdown>
+        {exp.description ? (
+          <PortableText value={exp.description} />
+        ) : (
+          <p>No description provided.</p>
+        )}
       </div>
 
       {/* Gallery Section */}
@@ -227,7 +194,7 @@ export default function ExperienceDetail() {
                 className="aspect-video rounded-xl overflow-hidden border border-white/10 bg-[#1c1a19] cursor-pointer group relative"
               >
                 <img
-                  src={img}
+                  src={urlFor(img).url()}
                   alt={`${exp.companyName} screenshot ${idx + 1}`}
                   className="w-full h-full object-cover group-hover:scale-[1.03] transition-all duration-500"
                 />
@@ -285,7 +252,7 @@ export default function ExperienceDetail() {
               className="relative max-w-full max-h-[85vh] z-40 flex flex-col items-center gap-4"
             >
               <img
-                src={exp.gallery[activeImageIndex]}
+                src={urlFor(exp.gallery[activeImageIndex]).url()}
                 alt={`${exp.companyName} gallery zoomed ${activeImageIndex + 1}`}
                 className="max-w-[90vw] max-h-[75vh] sm:max-h-[78vh] object-contain rounded-lg shadow-2xl border border-white/10 select-none"
               />

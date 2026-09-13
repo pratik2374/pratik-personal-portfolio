@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { slugify } from '../../utils/slugify'
+import { urlFor } from '../../lib/sanity'
 
 const MotionLink = motion(Link)
 
@@ -10,7 +11,7 @@ export default function ProjectCard({ project }) {
       <div className="w-20 h-20 sm:w-28 sm:h-28 shrink-0 overflow-hidden rounded-xl border border-white/10">
         {project.image ? (
           <img
-            src={project.image}
+            src={urlFor(project.image).url()}
             alt={project.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
@@ -25,7 +26,9 @@ export default function ProjectCard({ project }) {
           {project.title}
         </h3>
         <p className="text-gray-mid text-sm sm:text-base font-inter truncate">
-          {project.description || 'Project details'}
+          {Array.isArray(project.description) 
+            ? project.description[0]?.children?.[0]?.text || 'Project details'
+            : project.description || 'Project details'}
         </p>
       </div>
       

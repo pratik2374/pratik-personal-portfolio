@@ -12,7 +12,9 @@ export default function ExperienceCard({ experience }) {
           {experience.companyName || experience.company}
         </h3>
         <p className="text-gray-mid text-sm sm:text-base font-inter mb-4 leading-relaxed">
-          {experience.description}
+          {Array.isArray(experience.description) 
+            ? experience.description[0]?.children?.[0]?.text || ''
+            : experience.description}
         </p>
         <p className="text-gray-dark text-xs sm:text-sm font-inter">
           {experience.date || experience.period || 'Jan 2020 - Present'}

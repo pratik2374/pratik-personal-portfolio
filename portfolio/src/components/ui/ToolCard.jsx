@@ -1,11 +1,12 @@
 import { motion } from 'framer-motion'
+import { urlFor } from '../../lib/sanity'
 
 export default function ToolCard({ tool }) {
   const content = (
     <>
       {tool.image ? (
         <div className="w-12 h-12 mb-4 rounded-xl overflow-hidden bg-white/5 flex items-center justify-center border border-white/10 group-hover:scale-110 transition-transform duration-300">
-          <img src={tool.image} alt={tool.title} className="w-8 h-8 object-contain" />
+          <img src={urlFor(tool.image).url()} alt={tool.title} className="w-8 h-8 object-contain" />
         </div>
       ) : (
         <div className="w-12 h-12 mb-4 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:scale-110 transition-transform duration-300">

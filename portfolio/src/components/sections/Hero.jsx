@@ -5,6 +5,19 @@ import { Link } from 'react-router-dom'
 export default function Hero() {
   const settings = useSettingsContext()
 
+  const rawTagline = settings?.tagline || 'PROBLEM SOLVING\nRAG · LLM · GEN AI\nC++ · PYTHON'
+  const cmsWords = rawTagline
+    .replace(/ENGINEER\s*AI\s*[·.•]?\s*SOFTWARE/gi, '')
+    .replace(/AI\s*[·.•]?\s*SOFTWARE\s*ENGINEER/gi, '')
+    .replace(/AI\s*[·.•]?\s*SOFTWARE/gi, '')
+    .replace(/SOFTWARE\s*ENGINEER/gi, '')
+    .replace(/AI\s*ENGINEER/gi, '')
+    .replace(/S\/W\s*ENGINEER/gi, '')
+    .replace(/\bENGINEER\b/gi, '')
+    .replace(/^[·.•\s]+|[·.•\s]+$/g, '')
+    .replace(/\n[·.•\s]*\n/g, '\n')
+    .trim() || 'PROBLEM SOLVING\nRAG · LLM · GEN AI\nC++ · PYTHON'
+
   return (
     <section className="mb-24 flex flex-col gap-8">
       {/* Title */}
@@ -13,13 +26,19 @@ export default function Hero() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-50px" }}
         transition={{ duration: 0.6, ease: "easeOut" }}
+        className="flex flex-col"
       >
-        <h1 className="font-poppins font-bold text-6xl sm:text-[80px] leading-[0.9] tracking-tighter text-white uppercase mb-2">
-          {settings?.tagline?.split(' ')[0] || 'SOFTWARE'}
+        <h1 className="font-poppins font-bold text-5xl sm:text-6xl md:text-7xl lg:text-[80px] leading-[0.9] tracking-tighter text-white uppercase whitespace-nowrap">
+          AI · SOFTWARE
         </h1>
-        <h1 className="font-poppins font-bold text-6xl sm:text-[80px] leading-[0.9] tracking-tighter text-[#333333] uppercase">
-          {settings?.tagline?.split(' ').slice(1).join(' ') || 'ENGINEER'}
+        <h1 className="font-poppins font-bold text-5xl sm:text-6xl md:text-7xl lg:text-[80px] leading-[0.9] tracking-tighter text-white uppercase whitespace-nowrap">
+          ENGINEER
         </h1>
+        {cmsWords && (
+          <h2 className="font-poppins font-bold text-5xl sm:text-6xl md:text-7xl lg:text-[80px] leading-[0.9] tracking-tighter text-[#333333] uppercase whitespace-pre-line">
+            {cmsWords}
+          </h2>
+        )}
       </motion.div>
 
       {/* Bio */}

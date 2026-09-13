@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
-import { collection, query, where, getDocs } from 'firebase/firestore'
-import { db } from '../lib/firebase'
+import { sanityClient } from '../lib/sanity'
 
 export function useDocumentBySlug(collectionName, slug) {
   const [doc, setDoc] = useState(null)
@@ -9,17 +8,26 @@ export function useDocumentBySlug(collectionName, slug) {
 
   useEffect(() => {
     if (!slug) return
-    const q = query(
-      collection(db, collectionName),
-      where('slug', '==', slug),
-      where('status', '==', 'live')
-    )
-    getDocs(q)
-      .then(snapshot => {
-        if (!snapshot.empty) {
-          setDoc({ id: snapshot.docs[0].id, ...snapshot.docs[0].data() })
+
+    const typeMap = {
+      'projects': 'project',
+      'experience': 'experience',
+      'blog': 'blog',
+      'tools': 'tool'
+    }
+    const type = typeMap[collectionName] || collectionName
+
+    // We check slug.current because Sanity slugs are objects: { current: 'my-slug' }
+    // Filter out drafts automatically.
+    const query = `*[_type == "${type}" && slug.current == "${slug}" && !(_id in path("drafts.**"))][0]`
+
+    sanityClient.fetch(query)
+      .then(result => {
+        if (result) {
+          // Map _id to id and flatten slug to match old Firebase format exactly
+          setDoc({ ...result, id: result._id, slug: result.slug.current })
         } else {
-          setError(new Error('Post not found'))
+          setError(new Error('Document not found'))
         }
       })
       .catch(setError)

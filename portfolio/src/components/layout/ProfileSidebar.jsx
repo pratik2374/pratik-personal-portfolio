@@ -1,5 +1,6 @@
 import { useSettingsContext } from '../../context/SettingsContext'
 import { motion } from 'framer-motion'
+import portfolioImage from './portfolio_image.png'
 
 export default function ProfileSidebar() {
   const settings = useSettingsContext()
@@ -44,8 +45,8 @@ export default function ProfileSidebar() {
         className="relative z-10 w-full h-72 mb-5 rounded-[24px] overflow-hidden bg-accent-orange"
       >
         <img
-          src={settings?.avatar || "https://framerusercontent.com/images/w2hyXovpoCcfHZkjR4Hmr53RA5o.jpg"}
-          alt={settings?.name || 'Profile'}
+          src={portfolioImage}
+          alt="Pratik Gond"
           className="w-full h-full object-cover mix-blend-multiply grayscale contrast-125"
         />
       </motion.div>
@@ -57,7 +58,7 @@ export default function ProfileSidebar() {
         transition={{ delay: 0.2 }}
         className="font-poppins font-bold text-[28px] leading-[1.1] tracking-tight text-black mb-2 relative z-10"
       >
-        {settings?.name || 'Aaabad Ahmed'}
+        Pratik Gond
       </motion.h1>
 
       {/* Small orange flame/icon badge */}
@@ -106,9 +107,9 @@ export default function ProfileSidebar() {
         {settings?.linkedin && (
           <a href={settings.linkedin} target="_blank" rel="noreferrer" className="hover:scale-110 transition-transform">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+              <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+              <rect x="2" y="9" width="4" height="12"></rect>
+              <circle cx="4" cy="4" r="2"></circle>
             </svg>
           </a>
         )}

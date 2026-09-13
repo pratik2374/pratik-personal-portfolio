@@ -1,30 +1,38 @@
 import { useState, useEffect } from 'react'
-import { collection, query, where, orderBy, getDocs } from 'firebase/firestore'
-import { db } from '../lib/firebase'
+import { sanityClient } from '../lib/sanity'
 
-export function useCollection(collectionName, orderField = 'createdAt') {
+export function useCollection(collectionName, orderField = '_createdAt') {
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    const q = query(
-      collection(db, collectionName),
-      where('status', '==', 'live')
-    )
-    getDocs(q)
-      .then(snapshot => {
-        let docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
-        
-        docs.sort((a, b) => {
-          const valA = a[orderField]?.toMillis ? a[orderField].toMillis() : a[orderField]
-          const valB = b[orderField]?.toMillis ? b[orderField].toMillis() : b[orderField]
-          if (valA < valB) return 1
-          if (valA > valB) return -1
-          return 0
-        })
-        
-        setData(docs)
+    // Map Firebase collection names to Sanity types
+    const typeMap = {
+      'projects': 'project',
+      'experience': 'experience',
+      'blog': 'blog',
+      'tools': 'tool'
+    }
+    const type = typeMap[collectionName] || collectionName
+
+    // We only want published documents (native Sanity draft filtering)
+    // Default ordering is descending. If orderField is manualOrder or order, sort ascending
+    const orderStr = orderField === 'order' || orderField === 'manualOrder' 
+      ? `order(${orderField} asc)` 
+      : `order(${orderField} desc)`
+
+    const query = `*[_type == "${type}" && !(_id in path("drafts.**"))] | ${orderStr}`
+
+    sanityClient.fetch(query)
+      .then(docs => {
+        // Map Sanity _id to id and flatten slug so frontend doesn't break
+        const mapped = docs.map(doc => ({ 
+          ...doc, 
+          id: doc._id,
+          slug: doc.slug?.current || doc.slug
+        }))
+        setData(mapped)
       })
       .catch(setError)
       .finally(() => setLoading(false))

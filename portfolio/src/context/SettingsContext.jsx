@@ -1,15 +1,15 @@
 import { createContext, useContext } from 'react'
-import { useSettings } from '../hooks/useSettings'
+import { settings as staticSettings } from '../data/settings'
 
-const SettingsContext = createContext(null)
+const SettingsContext = createContext(staticSettings)
 
 export function SettingsProvider({ children }) {
-  const { settings, loading } = useSettings()
+  // Provide static settings synchronously — 0ms delay, zero blank screens
   return (
-    <SettingsContext.Provider value={settings}>
-      {loading ? null : children}
+    <SettingsContext.Provider value={staticSettings}>
+      {children}
     </SettingsContext.Provider>
   )
 }
 
-export const useSettingsContext = () => useContext(SettingsContext)
+export const useSettingsContext = () => useContext(SettingsContext) || staticSettings

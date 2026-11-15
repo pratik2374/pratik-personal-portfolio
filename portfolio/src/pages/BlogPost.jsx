@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import { PortableText } from '@portabletext/react'
 import { useDocumentBySlug } from '../hooks/useDocumentBySlug'
 import ContactForm from '../components/ui/ContactForm'
-import { urlFor } from '../lib/sanity'
+import { urlFor, getOptimizedImageUrl } from '../lib/sanity'
 
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
@@ -17,8 +17,10 @@ const portableTextComponents = {
         <figure className="my-10 flex flex-col items-center">
           <div className="w-full rounded-xl border border-white/10 overflow-hidden shadow-lg bg-[#1c1a19] flex justify-center">
             <img
-              src={urlFor(value).url()}
+              src={getOptimizedImageUrl(value, { width: 1000, fit: 'max' })}
               alt={value.alt || 'Blog Image'}
+              loading="lazy"
+              decoding="async"
               className="max-w-full h-auto max-h-[600px] object-contain"
             />
           </div>
@@ -167,7 +169,14 @@ export default function BlogPost() {
 
       {post.image && (
         <div className="w-full aspect-[21/9] sm:h-[400px] rounded-2xl overflow-hidden mb-8 border border-white/10">
-          <img src={urlFor(post.image).url()} alt={post.title} className="w-full h-full object-cover" />
+          <img 
+            src={getOptimizedImageUrl(post.image, { width: 1200, fit: 'max' })} 
+            alt={post.title} 
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
+            className="w-full h-full object-cover" 
+          />
         </div>
       )}
       
@@ -176,7 +185,7 @@ export default function BlogPost() {
         <span>{post.readTime || '6min read'}</span>
       </div>
 
-      <h1 className="font-poppins font-bold text-4xl sm:text-[44px] leading-[1.2] text-white mb-10 tracking-tight">
+      <h1 className="font-poppins font-bold text-3xl sm:text-[44px] leading-[1.2] text-white mb-8 sm:mb-10 tracking-tight">
         {post.title}
       </h1>
 

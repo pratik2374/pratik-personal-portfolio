@@ -22,7 +22,7 @@ function AppContent() {
   return (
     <div className="min-h-screen bg-bg text-white relative font-inter">
       <FloatingNav />
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-24 sm:py-32 flex flex-col lg:flex-row gap-12 relative">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-6 pb-28 sm:py-20 lg:py-28 flex flex-col lg:flex-row gap-8 sm:gap-12 relative">
         {!hideSidebar && (
           <aside className="w-full lg:w-[350px] shrink-0 z-10">
             <div className="lg:sticky lg:top-24">

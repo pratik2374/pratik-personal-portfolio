@@ -4,7 +4,7 @@ import { PortableText } from '@portabletext/react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useDocumentBySlug } from '../hooks/useDocumentBySlug'
 import ContactForm from '../components/ui/ContactForm'
-import { urlFor } from '../lib/sanity'
+import { urlFor, getOptimizedImageUrl } from '../lib/sanity'
 
 // Helper to parse different video URL styles (YouTube, Vimeo, Loom, Direct Video URLs)
 function getEmbedUrl(url) {
@@ -128,14 +128,21 @@ export default function ExperienceDetail() {
         ) : (
           exp.image && (
             <div className="w-full aspect-video rounded-2xl overflow-hidden border border-white/10 bg-[#1c1a19]">
-              <img src={urlFor(exp.image).url()} alt={exp.companyName} className="w-full h-full object-cover" />
+              <img 
+                src={getOptimizedImageUrl(exp.image, { width: 1200, fit: 'max' })} 
+                alt={exp.companyName} 
+                loading="eager"
+                fetchPriority="high"
+                decoding="async"
+                className="w-full h-full object-cover" 
+              />
             </div>
           )
         )}
       </div>
 
       {/* Header details */}
-      <h1 className="font-poppins font-bold text-4xl sm:text-5xl leading-[1.1] text-white tracking-tight mb-2">
+      <h1 className="font-poppins font-bold text-3xl sm:text-5xl leading-[1.1] text-white tracking-tight mb-2">
         {exp.companyName}
       </h1>
       
@@ -194,8 +201,10 @@ export default function ExperienceDetail() {
                 className="aspect-video rounded-xl overflow-hidden border border-white/10 bg-[#1c1a19] cursor-pointer group relative"
               >
                 <img
-                  src={urlFor(img).url()}
+                  src={getOptimizedImageUrl(img, { width: 800, height: 450, fit: 'crop' })}
                   alt={`${exp.companyName} screenshot ${idx + 1}`}
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-cover group-hover:scale-[1.03] transition-all duration-500"
                 />
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -252,8 +261,9 @@ export default function ExperienceDetail() {
               className="relative max-w-full max-h-[85vh] z-40 flex flex-col items-center gap-4"
             >
               <img
-                src={urlFor(exp.gallery[activeImageIndex]).url()}
+                src={getOptimizedImageUrl(exp.gallery[activeImageIndex], { width: 1600, fit: 'max' })}
                 alt={`${exp.companyName} gallery zoomed ${activeImageIndex + 1}`}
+                decoding="async"
                 className="max-w-[90vw] max-h-[75vh] sm:max-h-[78vh] object-contain rounded-lg shadow-2xl border border-white/10 select-none"
               />
               <span className="text-gray-mid text-sm font-medium font-poppins">

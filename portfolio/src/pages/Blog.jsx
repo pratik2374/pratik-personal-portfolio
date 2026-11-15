@@ -4,51 +4,37 @@ import BlogCard from '../components/ui/BlogCard'
 export default function Blog() {
   const { data: posts, loading } = useCollection('blog')
 
-  // Fallback to placeholder posts if the database is empty
-  const displayPosts = posts && posts.length > 0 ? posts : [
-    {
-      id: 'placeholder-1',
-      title: 'The Future of Interface Design: Moving Beyond Screens',
-      summary: 'Exploring the paradigm shift from graphical user interfaces to spatial computing and zero-UI environments. As we look towards the next decade, how will designers adapt to multimodal interactions?',
-      readTime: '5min read',
-      createdAt: new Date()
-    },
-    {
-      id: 'placeholder-2',
-      title: 'Why Micro-interactions Matter in Modern Web Apps',
-      summary: 'A deep dive into how subtle animations and state changes can dramatically improve user retention and perceived performance. We explore the psychology behind satisfying digital experiences.',
-      readTime: '4min read',
-      createdAt: new Date(Date.now() - 86400000)
-    },
-    {
-      id: 'placeholder-3',
-      title: 'Designing for Accessibility: A Comprehensive Guide',
-      summary: "Creating inclusive digital products isn't just about compliance—it's about good design. Practical strategies for integrating accessibility into your product development lifecycle from day one.",
-      readTime: '8min read',
-      createdAt: new Date(Date.now() - 172800000)
-    }
-  ]
-
   return (
-    <div className="mb-24 pt-12 sm:pt-0">
-      <div className="mb-12">
-        <h1 className="font-poppins font-bold text-5xl sm:text-[72px] leading-[0.9] tracking-tighter text-white uppercase">
+    <div className="mb-16 sm:mb-24 pt-6 sm:pt-0">
+      <div className="mb-8 sm:mb-12">
+        <h1 className="font-poppins font-bold text-4xl sm:text-6xl md:text-[72px] leading-[0.95] sm:leading-[0.9] tracking-tighter text-white uppercase">
           DESIGN
         </h1>
-        <h1 className="font-poppins font-bold text-5xl sm:text-[72px] leading-[0.9] tracking-tighter text-[#333333] uppercase">
+        <h1 className="font-poppins font-bold text-4xl sm:text-6xl md:text-[72px] leading-[0.95] sm:leading-[0.9] tracking-tighter text-[#333333] uppercase">
           THOUGHTS
         </h1>
       </div>
       
-      {loading ? (
-        <p className="text-gray-mid">Loading...</p>
-      ) : (
-        <div className="flex flex-col gap-2">
-          {displayPosts.map(post => (
+      <div className="flex flex-col gap-4">
+        {loading && (!posts || posts.length === 0) ? (
+          [1, 2, 3].map(i => (
+            <div key={i} className="p-4 sm:p-5 rounded-2xl bg-[#181615] border border-white/5 animate-pulse flex flex-col sm:flex-row gap-4 sm:gap-5">
+              <div className="w-full sm:w-44 h-36 sm:h-28 rounded-xl bg-white/10 shrink-0" />
+              <div className="flex-1 min-w-0 flex flex-col justify-center">
+                <div className="h-4 bg-white/10 rounded w-1/4 mb-3" />
+                <div className="h-6 bg-white/10 rounded w-3/4 mb-2" />
+                <div className="h-4 bg-white/5 rounded w-full" />
+              </div>
+            </div>
+          ))
+        ) : posts && posts.length > 0 ? (
+          posts.map(post => (
             <BlogCard key={post.id} post={post} />
-          ))}
-        </div>
-      )}
+          ))
+        ) : (
+          <p className="text-gray-mid text-sm font-inter">No blog posts found.</p>
+        )}
+      </div>
     </div>
   )
 }

@@ -1,10 +1,10 @@
 export const settings = {
   name: 'Pratik Gond',
   tagline: 'PROBLEM SOLVING\nRAG · LLM · GEN AI\nC++ · PYTHON',
-  bio: 'A Software Engineer who has developed countless innovative solutions.',
-  bioSnippet: 'A Software Engineer who has developed countless innovative solutions. white',
+  bio: 'Passionate about creating intuitive and engaging user experiences. Specialize in transforming ideas into beautifully crafted products.',
+  bioSnippet: 'A Software Engineer who has developed countless innovative solutions.',
   avatar: '',
-  email: 'pratik@example.com',
+  email: 'pratikgond21@gmail.com',
   github: 'https://github.com/pratik2374',
   linkedin: 'https://linkedin.com/in/pratikgond',
   twitter: '',
@@ -16,4 +16,12 @@ export const settings = {
   ],
   heroOrangeCard: 'Dynamic Animation,\nMotion Design',
   heroLimeCard: 'Framer, Figma,\nWordPress, ReactJs',
+  headings: {
+    projects: 'RECENT PROJECTS',
+    allProjects: 'ALL PROJECTS',
+    experience: '12 YEARS OF EXPERIENCE',
+    workExperience: 'WORK EXPERIENCE',
+    tools: 'PREMIUM TOOLS',
+    blog: 'DESIGN THOUGHTS',
+  }
 }

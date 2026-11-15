@@ -2,8 +2,24 @@ import { useState, useEffect } from 'react'
 import { sanityClient } from '../lib/sanity'
 
 export function useDocumentBySlug(collectionName, slug) {
-  const [doc, setDoc] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const cacheKey = `portfolio_doc_${collectionName}_${slug}`
+
+  const [doc, setDoc] = useState(() => {
+    try {
+      const cached = localStorage.getItem(cacheKey)
+      if (cached) return JSON.parse(cached)
+    } catch (e) {}
+    return null
+  })
+
+  const [loading, setLoading] = useState(() => {
+    try {
+      const cached = localStorage.getItem(cacheKey)
+      if (cached) return false
+    } catch (e) {}
+    return true
+  })
+
   const [error, setError] = useState(null)
 
   useEffect(() => {
@@ -17,22 +33,23 @@ export function useDocumentBySlug(collectionName, slug) {
     }
     const type = typeMap[collectionName] || collectionName
 
-    // We check slug.current because Sanity slugs are objects: { current: 'my-slug' }
-    // Filter out drafts automatically.
     const query = `*[_type == "${type}" && slug.current == "${slug}" && !(_id in path("drafts.**"))][0]`
 
     sanityClient.fetch(query)
       .then(result => {
         if (result) {
-          // Map _id to id and flatten slug to match old Firebase format exactly
-          setDoc({ ...result, id: result._id, slug: result.slug.current })
+          const mapped = { ...result, id: result._id, slug: result.slug?.current || result.slug }
+          setDoc(mapped)
+          try {
+            localStorage.setItem(cacheKey, JSON.stringify(mapped))
+          } catch (e) {}
         } else {
           setError(new Error('Document not found'))
         }
       })
       .catch(setError)
       .finally(() => setLoading(false))
-  }, [collectionName, slug])
+  }, [collectionName, slug, cacheKey])
 
   return { doc, loading, error }
 }

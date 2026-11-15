@@ -1,8 +1,16 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { db } from '../../lib/firebase'
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
 import emailjs from '@emailjs/browser'
 import { motion, AnimatePresence } from 'framer-motion'
+
+const BUDGET_OPTIONS = [
+  'Select...',
+  '< $1,000',
+  '$1,000 - $5,000',
+  '$5,000 - $10,000',
+  '$10,000+'
+]
 
 // ─── EmailJS Config ───
 const EMAILJS_SERVICE_ID  = import.meta.env.VITE_EMAILJS_SERVICE_ID
@@ -14,6 +22,28 @@ export default function ContactForm() {
   const [status, setStatus] = useState('idle') // idle | submitting | success | error
   const [errorMsg, setErrorMsg] = useState('')
   const [senderName, setSenderName] = useState('')
+  const [budgetOpen, setBudgetOpen] = useState(false)
+  const dropdownRef = useRef(null)
+
+  // Close dropdown on outside click or escape
+  useEffect(() => {
+    const handleOutsideClick = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setBudgetOpen(false)
+      }
+    }
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') setBudgetOpen(false)
+    }
+    if (budgetOpen) {
+      document.addEventListener('mousedown', handleOutsideClick)
+      document.addEventListener('keydown', handleKeyDown)
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick)
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [budgetOpen])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -60,12 +90,12 @@ export default function ContactForm() {
   }
 
   return (
-    <div className="mt-24 pt-12 border-t border-white/5 relative">
-      <div className="mb-12">
-        <h2 className="font-poppins font-bold text-5xl sm:text-[72px] leading-[0.9] tracking-tighter text-white uppercase">
+    <div className="mt-16 sm:mt-24 pt-8 sm:pt-12 border-t border-white/5 relative">
+      <div className="mb-8 sm:mb-12">
+        <h2 className="font-poppins font-bold text-4xl sm:text-6xl md:text-[72px] leading-[0.95] sm:leading-[0.9] tracking-tighter text-white uppercase">
           LET'S WORK
         </h2>
-        <h2 className="font-poppins font-bold text-5xl sm:text-[72px] leading-[0.9] tracking-tighter text-[#333333] uppercase">
+        <h2 className="font-poppins font-bold text-4xl sm:text-6xl md:text-[72px] leading-[0.95] sm:leading-[0.9] tracking-tighter text-[#333333] uppercase">
           TOGETHER
         </h2>
       </div>
@@ -79,7 +109,7 @@ export default function ContactForm() {
             animate={{ y: 0, opacity: 1, scale: 1 }}
             exit={{ y: 16, opacity: 0, scale: 0.96, transition: { duration: 0.18 } }}
             transition={{ type: 'spring', stiffness: 420, damping: 32 }}
-            className="fixed bottom-6 right-6 z-[9999] w-[320px]"
+            className="fixed bottom-24 sm:bottom-6 right-4 sm:right-6 left-4 sm:left-auto max-w-[calc(100vw-32px)] sm:w-[320px] z-[9999]"
           >
             <div className="relative overflow-hidden rounded-2xl bg-[#191716] border border-white/[0.07]"
               style={{ borderLeft: '3px solid #802a08' }}>
@@ -142,7 +172,7 @@ export default function ContactForm() {
             animate={{ y: 0, opacity: 1, scale: 1 }}
             exit={{ y: 16, opacity: 0, scale: 0.96, transition: { duration: 0.18 } }}
             transition={{ type: 'spring', stiffness: 420, damping: 32 }}
-            className="fixed bottom-6 right-6 z-[9999] w-[320px]"
+            className="fixed bottom-24 sm:bottom-6 right-4 sm:right-6 left-4 sm:left-auto max-w-[calc(100vw-32px)] sm:w-[320px] z-[9999]"
           >
             <div className="relative overflow-hidden rounded-2xl bg-[#191716] border border-white/[0.07]"
               style={{ borderLeft: '3px solid #f87171' }}>
@@ -225,20 +255,67 @@ export default function ContactForm() {
         
         <div>
           <label className="block text-[#666666] text-[11px] uppercase tracking-wider font-semibold mb-2 ml-1">Budget</label>
-          <div className="relative">
-            <select 
-              className="w-full bg-[#2d2a29] border border-transparent rounded-lg px-4 py-3.5 text-sm text-white focus:outline-none focus:border-accent-orange transition-colors appearance-none"
-              value={form.budget}
-              onChange={e => setForm({...form, budget: e.target.value})}
+          <div className="relative" ref={dropdownRef}>
+            {/* Custom Dropdown Trigger */}
+            <button
+              type="button"
+              onClick={() => setBudgetOpen(!budgetOpen)}
+              className={`w-full bg-[#2d2a29] border rounded-lg px-4 py-3.5 text-sm text-left flex items-center justify-between transition-colors focus:outline-none ${
+                budgetOpen ? 'border-accent-orange text-white' : 'border-transparent text-white hover:border-white/10'
+              }`}
             >
-              <option>Select...</option>
-              <option>$1k - $5k</option>
-              <option>$5k - $10k</option>
-              <option>$10k+</option>
-            </select>
-            <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-gray-mid">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-            </div>
+              <span className={form.budget === 'Select...' ? 'text-gray-400' : 'text-white font-medium'}>
+                {form.budget}
+              </span>
+              <motion.div
+                animate={{ rotate: budgetOpen ? 180 : 0 }}
+                transition={{ duration: 0.2 }}
+                className="text-gray-mid shrink-0 ml-2"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </motion.div>
+            </button>
+
+            {/* Custom Dropdown Menu */}
+            <AnimatePresence>
+              {budgetOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -6, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -6, scale: 0.98 }}
+                  transition={{ duration: 0.15, ease: "easeOut" }}
+                  className="absolute top-full mt-2 left-0 right-0 z-50 bg-[#1c1a19] border border-white/10 rounded-xl shadow-2xl overflow-hidden backdrop-blur-xl p-1.5"
+                >
+                  {BUDGET_OPTIONS.map((opt) => {
+                    const isSelected = form.budget === opt
+                    return (
+                      <button
+                        key={opt}
+                        type="button"
+                        onClick={() => {
+                          setForm({ ...form, budget: opt })
+                          setBudgetOpen(false)
+                        }}
+                        className={`w-full text-left px-3.5 py-2.5 rounded-lg text-sm transition-colors flex items-center justify-between ${
+                          isSelected
+                            ? 'bg-accent-orange/15 text-accent-orange font-semibold'
+                            : 'text-gray-300 hover:bg-white/5 hover:text-white'
+                        }`}
+                      >
+                        <span>{opt}</span>
+                        {isSelected && (
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-accent-orange">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                          </svg>
+                        )}
+                      </button>
+                    )
+                  })}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
 

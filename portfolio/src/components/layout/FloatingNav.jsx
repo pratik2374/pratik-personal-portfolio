@@ -10,22 +10,30 @@ const NAV = [
   { to: '/blog',       label: 'Thoughts',   Icon: PencilIcon },
 ]
 
-// Snap exit — fast ease-in collapse (the "snap" moment)
+// Transitions
 const SNAP = { duration: 0.18, ease: [0.55, 0, 1, 0.45] }
-// Spring expand — slightly overshoots to feel alive
 const EXPAND = { type: 'spring', stiffness: 520, damping: 32, mass: 0.7 }
-// Item stagger spring
 const ITEM_S = { type: 'spring', stiffness: 420, damping: 30 }
 
-const PILL_BG   = 'rgba(15, 13, 12, 0.97)'
-const PILL_RING = '0 0 0 1px rgba(255,255,255,0.055)'
+const PILL_BG   = 'rgba(15, 13, 12, 0.95)'
+const PILL_RING = '0 0 0 1px rgba(255,255,255,0.08)'
 
 export default function FloatingNav() {
   const location  = useLocation()
   const [hovered, setHovered] = useState(null)
   const [scrolled, setScrolled] = useState(false)
   const [visibleSection, setVisibleSection] = useState(null)
+  const [isMobile, setIsMobile] = useState(false)
 
+  // Responsive check
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768)
+    checkMobile()
+    window.addEventListener('resize', checkMobile, { passive: true })
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  // Scroll detection
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 50)
     window.addEventListener('scroll', fn, { passive: true })
@@ -33,8 +41,7 @@ export default function FloatingNav() {
     return () => window.removeEventListener('scroll', fn)
   }, [])
 
-  // Section-awareness: only runs on Home (/), where sections are embedded.
-  // Tracks which section's top has most recently passed 40% down the viewport.
+  // Section-awareness on Home page
   useEffect(() => {
     if (location.pathname !== '/') {
       setVisibleSection(null)
@@ -66,13 +73,56 @@ export default function FloatingNav() {
     return to === '/' ? location.pathname === '/' : location.pathname.startsWith(to)
   }
 
+  // ── MOBILE: Thumb-friendly floating bottom dock ──────────────────────────
+  if (isMobile) {
+    return (
+      <nav
+        aria-label="Mobile Navigation"
+        style={{
+          position: 'fixed',
+          bottom: 20,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 50,
+          background: PILL_BG,
+          boxShadow: '0 10px 30px -5px rgba(0,0,0,0.8), ' + PILL_RING,
+        }}
+        className="flex flex-row items-center gap-2 px-4 py-2
+          backdrop-blur-2xl rounded-full
+          border border-white/10"
+      >
+        {NAV.map(({ to, label, Icon }) => {
+          const isActive = active(to)
+          return (
+            <NavLink
+              key={to}
+              to={to}
+              end={to === '/'}
+              aria-label={label}
+              className={`relative flex flex-col items-center justify-center w-12 h-12 rounded-full
+                transition-all duration-200 active:scale-90
+                ${isActive ? 'text-accent-orange bg-accent-orange/10' : 'text-[#888888] hover:text-white'}`}
+            >
+              <span className="w-5 h-5 block pointer-events-none">
+                <Icon />
+              </span>
+              {isActive && (
+                <span className="absolute bottom-1.5 w-1 h-1 rounded-full bg-accent-orange" />
+              )}
+            </NavLink>
+          )
+        })}
+      </nav>
+    )
+  }
+
+  // ── DESKTOP: Dynamic top pill -> left side vertical dock ──────────────────
   return (
     <AnimatePresence mode="wait" initial={false}>
       {!scrolled ? (
         /* ── HORIZONTAL (top) ─────────────────────────────────── */
         <motion.nav
           key="h"
-          /* Squish vertically to a thin line on exit, expand from line on enter */
           initial={{ scaleY: 0, opacity: 0 }}
           animate={{
             scaleY: 1, opacity: 1,
@@ -96,7 +146,6 @@ export default function FloatingNav() {
           {NAV.map(({ to, label, Icon }, i) => (
             <motion.div
               key={to}
-              /* Items stagger in after container snaps open */
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0, transition: { ...ITEM_S, delay: 0.1 + i * 0.05 } }}
               className="relative flex items-center justify-center"
@@ -105,6 +154,7 @@ export default function FloatingNav() {
             >
               <NavLink
                 to={to} end={to === '/'}
+                aria-label={label}
                 className={`flex items-center justify-center w-10 h-10 rounded-xl
                   transition-colors duration-200
                   ${active(to) ? 'text-accent-orange' : 'text-[#6e6666] hover:text-white'}`}
@@ -126,7 +176,6 @@ export default function FloatingNav() {
                       px-3 py-1.5 rounded-xl font-poppins pointer-events-none whitespace-nowrap
                       shadow-none"
                   >
-                    {/* Triangle pointing up */}
                     <span aria-hidden style={{
                       position:'absolute', bottom:'100%', left:'50%', transform:'translateX(-50%)',
                       width:0, height:0,
@@ -145,7 +194,6 @@ export default function FloatingNav() {
         /* ── VERTICAL (left) ──────────────────────────────────── */
         <motion.nav
           key="v"
-          /* Collapse horizontally to a thin line on exit, expand from line on enter */
           initial={{ scaleX: 0, opacity: 0 }}
           animate={{
             scaleX: 1, opacity: 1,
@@ -157,7 +205,7 @@ export default function FloatingNav() {
             top: '50%',
             left: 20,
             translateY: '-50%',
-            originX: '0%',   /* expands rightward from the left wall */
+            originX: '0%',
             zIndex: 50,
             background: PILL_BG,
             boxShadow: PILL_RING,
@@ -169,7 +217,6 @@ export default function FloatingNav() {
           {NAV.map(({ to, label, Icon }, i) => (
             <motion.div
               key={to}
-              /* Items stagger in after container snaps open */
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0, transition: { ...ITEM_S, delay: 0.1 + i * 0.055 } }}
               className="relative flex items-center justify-center"
@@ -182,9 +229,9 @@ export default function FloatingNav() {
                 whileTap={{ scale: 0.89 }}
                 transition={{ type: 'spring', stiffness: 580, damping: 26 }}
               >
-                {/* NavLink fills the full 48px hit area — icon is small inside */}
                 <NavLink
                   to={to} end={to === '/'}
+                  aria-label={label}
                   className={`flex items-center justify-center w-12 h-12 rounded-[18px]
                     transition-colors duration-200
                     ${active(to) ? 'text-accent-orange' : 'text-[#6e6666] hover:text-white'}`}
@@ -207,7 +254,6 @@ export default function FloatingNav() {
                       px-3 py-1.5 rounded-xl font-poppins pointer-events-none whitespace-nowrap
                       shadow-none"
                   >
-                    {/* Triangle pointing left */}
                     <span aria-hidden style={{
                       position:'absolute', right:'100%', top:'50%', transform:'translateY(-50%)',
                       width:0, height:0,

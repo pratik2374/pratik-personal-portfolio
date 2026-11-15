@@ -1,73 +1,54 @@
-import { useSettingsContext } from '../../context/SettingsContext'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
+import { settings } from '../../data/settings'
 
 export default function Hero() {
-  const settings = useSettingsContext()
-
-  const rawTagline = settings?.tagline || 'PROBLEM SOLVING\nRAG · LLM · GEN AI\nC++ · PYTHON'
-  const cmsWords = rawTagline
-    .replace(/ENGINEER\s*AI\s*[·.•]?\s*SOFTWARE/gi, '')
-    .replace(/AI\s*[·.•]?\s*SOFTWARE\s*ENGINEER/gi, '')
-    .replace(/AI\s*[·.•]?\s*SOFTWARE/gi, '')
-    .replace(/SOFTWARE\s*ENGINEER/gi, '')
-    .replace(/AI\s*ENGINEER/gi, '')
-    .replace(/S\/W\s*ENGINEER/gi, '')
-    .replace(/\bENGINEER\b/gi, '')
-    .replace(/^[·.•\s]+|[·.•\s]+$/g, '')
-    .replace(/\n[·.•\s]*\n/g, '\n')
-    .trim() || 'PROBLEM SOLVING\nRAG · LLM · GEN AI\nC++ · PYTHON'
-
   return (
-    <section className="mb-24 flex flex-col gap-8">
-      {/* Title */}
+    <section className="mb-16 sm:mb-24 flex flex-col gap-6 sm:gap-8">
+      {/* Dominant Headline */}
       <motion.div
-        initial={{ opacity: 0, y: 30 }}
+        initial={{ opacity: 0, y: 25 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-50px" }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
         className="flex flex-col"
       >
-        <h1 className="font-poppins font-bold text-5xl sm:text-6xl md:text-7xl lg:text-[80px] leading-[0.9] tracking-tighter text-white uppercase whitespace-nowrap">
+        <h1 className="font-poppins font-black text-[46px] xs:text-[52px] sm:text-6xl md:text-7xl lg:text-[80px] leading-[0.88] tracking-tighter text-white uppercase break-words sm:whitespace-nowrap">
           AI · SOFTWARE
         </h1>
-        <h1 className="font-poppins font-bold text-5xl sm:text-6xl md:text-7xl lg:text-[80px] leading-[0.9] tracking-tighter text-white uppercase whitespace-nowrap">
+        <h1 className="font-poppins font-black text-[46px] xs:text-[52px] sm:text-6xl md:text-7xl lg:text-[80px] leading-[0.88] tracking-tighter text-white uppercase break-words sm:whitespace-nowrap mt-1">
           ENGINEER
         </h1>
-        {cmsWords && (
-          <h2 className="font-poppins font-bold text-5xl sm:text-6xl md:text-7xl lg:text-[80px] leading-[0.9] tracking-tighter text-[#333333] uppercase whitespace-pre-line">
-            {cmsWords}
-          </h2>
-        )}
+        <h2 className="font-poppins font-black text-[26px] xs:text-[32px] sm:text-4xl md:text-5xl lg:text-[68px] leading-[0.92] sm:leading-[0.9] tracking-tighter text-[#2a2624] uppercase whitespace-pre-line mt-3 sm:mt-2">
+          {settings.tagline}
+        </h2>
       </motion.div>
 
       {/* Bio */}
       <motion.p 
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 15 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-50px" }}
-        transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
-        className="text-gray-mid text-lg font-inter max-w-2xl leading-relaxed"
+        transition={{ duration: 0.5, delay: 0.15, ease: "easeOut" }}
+        className="text-gray-mid text-sm sm:text-base md:text-lg font-inter max-w-2xl leading-relaxed"
       >
-        {settings?.bio || 'Passionate about creating intuitive and engaging user experiences. Specialize in transforming ideas into beautifully crafted products.'}
+        {settings.bio}
       </motion.p>
 
       {/* Stats */}
       <motion.div 
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 15 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-50px" }}
-        transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
-        className="grid grid-cols-3 gap-6 pt-4 pb-8 border-b border-white/5"
+        transition={{ duration: 0.5, delay: 0.25, ease: "easeOut" }}
+        className="grid grid-cols-3 gap-2 sm:gap-6 pt-3 sm:pt-4 pb-6 sm:pb-8 border-b border-white/5"
       >
-        {(settings?.stats || [
-          { value: '+12', label: 'Years of\nExperience' },
-          { value: '+46', label: 'Projects\nCompleted' },
-          { value: '+20', label: 'Worldwide\nClients' },
-        ]).map((stat, i) => (
-          <div key={i}>
-            <h2 className="font-poppins font-bold text-5xl text-white mb-2">{stat.value}</h2>
-            <p className="text-gray-dark text-xs font-semibold tracking-wider uppercase leading-snug">
+        {settings.stats.map((stat, i) => (
+          <div key={i} className="pr-1">
+            <h2 className="font-poppins font-bold text-3xl sm:text-4xl md:text-5xl text-white mb-1">
+              {stat.value}
+            </h2>
+            <p className="text-gray-dark text-[10px] sm:text-xs font-semibold tracking-wider uppercase leading-tight sm:leading-snug">
               {stat.label.split('\n').map((line, j) => (
                 <span key={j}>{line}{j < stat.label.split('\n').length - 1 && <br />}</span>
               ))}
@@ -76,45 +57,64 @@ export default function Hero() {
         ))}
       </motion.div>
 
-      {/* Colorful Highlight Cards */}
+      {/* Identical Height Highlight Cards */}
       <motion.div 
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 15 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-50px" }}
-        transition={{ duration: 0.6, delay: 0.6, ease: "easeOut" }}
-        className="grid grid-cols-1 sm:grid-cols-2 gap-6"
+        transition={{ duration: 0.5, delay: 0.35, ease: "easeOut" }}
+        className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 items-stretch"
       >
         {/* Orange Card → Experience */}
-        <Link to="/experience" className="bg-accent-orange rounded-2xl p-6 relative overflow-hidden group hover:-translate-y-1 transition-transform block cursor-pointer">
-          <div className="absolute top-4 left-4 w-10 h-10 border border-white/20 rounded-full flex items-center justify-center">
-             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+        <Link 
+          to="/experience" 
+          aria-label="View Experience"
+          className="bg-accent-orange rounded-2xl p-5 sm:p-6 relative overflow-hidden group hover:-translate-y-1 active:scale-[0.99] transition-all block cursor-pointer shadow-lg h-[160px] sm:h-[180px] flex flex-col justify-between"
+        >
+          {/* Top Icon Circle */}
+          <div className="w-9 h-9 sm:w-10 sm:h-10 border border-white/20 rounded-full flex items-center justify-center shrink-0">
+             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
           </div>
-          <h3 className="font-poppins font-bold text-white text-xl uppercase mt-16 leading-tight">
-            {(settings?.heroOrangeCard || 'Dynamic Animation,\nMotion Design').split('\n').map((line, i, arr) => (
+
+          {/* Title */}
+          <h3 className="font-poppins font-bold text-white text-base sm:text-lg uppercase leading-tight pr-8">
+            {settings.heroOrangeCard.split('\n').map((line, i, arr) => (
               <span key={i}>{line}{i < arr.length - 1 && <br />}</span>
             ))}
           </h3>
-          <div className="absolute bottom-4 right-4 text-white opacity-0 group-hover:opacity-100 transition-opacity">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+
+          {/* Corner Arrow Indicator */}
+          <div className="absolute bottom-4 right-4 text-white opacity-90 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
           </div>
         </Link>
 
         {/* Lime Card → Projects */}
-        <Link to="/projects" className="bg-accent-lime rounded-2xl p-6 relative overflow-hidden group hover:-translate-y-1 transition-transform block cursor-pointer">
+        <Link 
+          to="/projects" 
+          aria-label="View Projects"
+          className="bg-accent-lime rounded-2xl p-5 sm:p-6 relative overflow-hidden group hover:-translate-y-1 active:scale-[0.99] transition-all block cursor-pointer shadow-lg h-[160px] sm:h-[180px] flex flex-col justify-between"
+        >
           {/* SVG background zig-zag lines */}
-          <svg className="absolute inset-0 w-full h-full text-black/10" preserveAspectRatio="none" viewBox="0 0 200 100">
+          <svg className="absolute inset-0 w-full h-full text-black/10 pointer-events-none" preserveAspectRatio="none" viewBox="0 0 200 100">
              <path d="M0 50 L 50 10 L 100 90 L 150 10 L 200 50" fill="none" stroke="currentColor" strokeWidth="2" />
           </svg>
-          <div className="absolute top-4 left-4 w-10 h-10 border border-black/20 rounded-full flex items-center justify-center relative z-10">
-             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line></svg>
+
+          {/* Top Icon Circle */}
+          <div className="w-9 h-9 sm:w-10 sm:h-10 border border-black/20 rounded-full flex items-center justify-center shrink-0 relative z-10">
+             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line></svg>
           </div>
-          <h3 className="font-poppins font-bold text-bg text-xl uppercase mt-16 leading-tight relative z-10">
-            {(settings?.heroLimeCard || 'Framer, Figma,\nWordPress, ReactJs').split('\n').map((line, i, arr) => (
+
+          {/* Title */}
+          <h3 className="font-poppins font-bold text-bg text-base sm:text-lg uppercase leading-tight relative z-10 pr-8">
+            {settings.heroLimeCard.split('\n').map((line, i, arr) => (
               <span key={i}>{line}{i < arr.length - 1 && <br />}</span>
             ))}
           </h3>
-          <div className="absolute bottom-4 right-4 text-bg opacity-0 group-hover:opacity-100 transition-opacity relative z-10">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+
+          {/* Corner Arrow Indicator */}
+          <div className="absolute bottom-4 right-4 text-bg opacity-90 sm:opacity-0 group-hover:opacity-100 transition-opacity z-10">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
           </div>
         </Link>
       </motion.div>

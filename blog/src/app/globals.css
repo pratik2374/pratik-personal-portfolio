@@ -8,9 +8,26 @@
   --font-mono: var(--font-geist-mono);
 }
 
-/* Custom Scrollbar */
+/* Native tactile responsiveness (PDF & charles-ux-animation rules) */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  scroll-behavior: smooth;
+  touch-action: manipulation; /* Eliminates 300ms tap delay on mobile */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  transition: background-color 0.25s cubic-bezier(0.22, 1, 0.36, 1), color 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Quiet, minimal scrollbar */
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -18,28 +35,15 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1; /* slate-300 */
-  border-radius: 5px;
+  background: rgba(156, 163, 175, 0.3);
+  border-radius: 3px;
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: #334155; /* slate-700 */
+  background: rgba(255, 255, 255, 0.15);
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8; /* slate-400 */
-}
-
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: #475569; /* slate-600 */
-}
-
-html, body {
-  scroll-behavior: smooth;
-  transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* View Transitions Circular Reveal for Theme Switch (Bidirectional) */
+/* View Transitions Circular Reveal for Theme Switch */
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation: none;

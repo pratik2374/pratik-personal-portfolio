@@ -45,8 +45,8 @@ export function ThemeToggle() {
             ],
           },
           {
-            duration: 500,
-            easing: "cubic-bezier(0.4, 0, 0.2, 1)",
+            duration: 450,
+            easing: "cubic-bezier(0.22, 1, 0.36, 1)",
             pseudoElement: "::view-transition-new(root)",
           }
         )
@@ -57,7 +57,7 @@ export function ThemeToggle() {
   }
 
   if (!mounted) {
-    return <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800" />
+    return <div className="w-11 h-11 rounded-lg bg-transparent" />
   }
 
   const isDark = resolvedTheme === "dark"
@@ -65,11 +65,11 @@ export function ThemeToggle() {
   return (
     <button
       onClick={toggleTheme}
-      className="relative p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800/60 transition-colors cursor-pointer focus:outline-hidden"
+      className="relative min-w-[44px] min-h-[44px] rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100/60 dark:hover:bg-gray-800/40 transition-colors flex items-center justify-center cursor-pointer active:scale-[0.92] duration-100 focus:outline-hidden"
       aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
       title={`Switch to ${isDark ? "light" : "dark"} mode`}
     >
-      <div className="relative w-4 h-4 flex items-center justify-center">
+      <div className="relative w-4 h-4 flex items-center justify-center pointer-events-none">
         {/* Sun Icon for Light Mode */}
         <Sun
           className={`w-4 h-4 transition-all duration-300 transform absolute ${

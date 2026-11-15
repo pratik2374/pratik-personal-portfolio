@@ -48,7 +48,7 @@ export default function ProjectCard({ project }) {
     </>
   )
 
-  const cardClasses = "group relative flex items-center gap-3.5 sm:gap-6 p-3 sm:p-4 rounded-2xl hover:bg-white/5 border border-transparent hover:border-white/10 active:bg-white/[0.07] transition-all duration-300"
+  const cardClasses = "group relative flex items-center gap-3.5 sm:gap-6 p-3 sm:p-4 rounded-2xl hover:bg-white/5 border border-transparent hover:border-white/10 active:bg-white/[0.08] transition-[background-color,border-color] duration-150 ease-out"
   
   const motionProps = {
     initial: { opacity: 0, y: 15 },

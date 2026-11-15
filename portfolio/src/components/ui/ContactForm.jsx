@@ -235,7 +235,7 @@ export default function ContactForm() {
               required
               type="text" 
               placeholder="Your Name"
-              className="w-full bg-[#2d2a29] border border-transparent rounded-lg px-4 py-3.5 text-sm text-white focus:outline-none focus:border-accent-orange transition-colors"
+              className="w-full bg-[#2d2a29] border border-transparent rounded-lg px-4 py-3.5 text-base sm:text-sm text-white focus:outline-none focus:border-accent-orange transition-colors"
               value={form.name}
               onChange={e => setForm({...form, name: e.target.value})}
             />
@@ -246,7 +246,7 @@ export default function ContactForm() {
               required
               type="email" 
               placeholder="you@example.com"
-              className="w-full bg-[#2d2a29] border border-transparent rounded-lg px-4 py-3.5 text-sm text-white focus:outline-none focus:border-accent-orange transition-colors"
+              className="w-full bg-[#2d2a29] border border-transparent rounded-lg px-4 py-3.5 text-base sm:text-sm text-white focus:outline-none focus:border-accent-orange transition-colors"
               value={form.email}
               onChange={e => setForm({...form, email: e.target.value})}
             />
@@ -260,7 +260,7 @@ export default function ContactForm() {
             <button
               type="button"
               onClick={() => setBudgetOpen(!budgetOpen)}
-              className={`w-full bg-[#2d2a29] border rounded-lg px-4 py-3.5 text-sm text-left flex items-center justify-between transition-colors focus:outline-none ${
+              className={`w-full min-h-[48px] bg-[#2d2a29] border rounded-lg px-4 py-3.5 text-base sm:text-sm text-left flex items-center justify-between transition-colors focus:outline-none active:scale-[0.99] ${
                 budgetOpen ? 'border-accent-orange text-white' : 'border-transparent text-white hover:border-white/10'
               }`}
             >
@@ -298,7 +298,7 @@ export default function ContactForm() {
                           setForm({ ...form, budget: opt })
                           setBudgetOpen(false)
                         }}
-                        className={`w-full text-left px-3.5 py-2.5 rounded-lg text-sm transition-colors flex items-center justify-between ${
+                        className={`w-full min-h-[44px] text-left px-3.5 py-2.5 rounded-lg text-sm transition-colors flex items-center justify-between active:scale-[0.98] ${
                           isSelected
                             ? 'bg-accent-orange/15 text-accent-orange font-semibold'
                             : 'text-gray-300 hover:bg-white/5 hover:text-white'
@@ -325,7 +325,7 @@ export default function ContactForm() {
             required
             rows={4}
             placeholder="Message"
-            className="w-full bg-[#2d2a29] border border-transparent rounded-lg px-4 py-3.5 text-sm text-white focus:outline-none focus:border-accent-orange transition-colors resize-none"
+            className="w-full bg-[#2d2a29] border border-transparent rounded-lg px-4 py-3.5 text-base sm:text-sm text-white focus:outline-none focus:border-accent-orange transition-colors resize-none"
             value={form.message}
             onChange={e => setForm({...form, message: e.target.value})}
           />
@@ -334,7 +334,7 @@ export default function ContactForm() {
         <button 
           type="submit" 
           disabled={status === 'submitting'}
-          className="w-full bg-accent-orange text-white font-poppins font-semibold text-sm py-4 rounded-lg hover:bg-opacity-90 transition-all disabled:opacity-50 mt-4 flex items-center justify-center gap-2"
+          className="w-full min-h-[48px] bg-accent-orange text-white font-poppins font-semibold text-sm py-4 rounded-lg hover:bg-opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 mt-4 flex items-center justify-center gap-2"
         >
           {status === 'submitting' ? (
             <>

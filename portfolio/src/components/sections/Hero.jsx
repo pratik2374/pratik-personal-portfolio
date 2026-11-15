@@ -69,7 +69,7 @@ export default function Hero() {
         <Link 
           to="/experience" 
           aria-label="View Experience"
-          className="bg-accent-orange rounded-2xl p-5 sm:p-6 relative overflow-hidden group hover:-translate-y-1 active:scale-[0.99] transition-all block cursor-pointer shadow-lg h-[160px] sm:h-[180px] flex flex-col justify-between"
+          className="bg-accent-orange rounded-2xl p-5 sm:p-6 relative overflow-hidden group hover:-translate-y-1 active:scale-[0.98] transition-[transform,box-shadow] duration-150 ease-out block cursor-pointer shadow-lg h-[160px] sm:h-[180px] flex flex-col justify-between"
         >
           {/* Top Icon Circle */}
           <div className="w-9 h-9 sm:w-10 sm:h-10 border border-white/20 rounded-full flex items-center justify-center shrink-0">
@@ -93,7 +93,7 @@ export default function Hero() {
         <Link 
           to="/projects" 
           aria-label="View Projects"
-          className="bg-accent-lime rounded-2xl p-5 sm:p-6 relative overflow-hidden group hover:-translate-y-1 active:scale-[0.99] transition-all block cursor-pointer shadow-lg h-[160px] sm:h-[180px] flex flex-col justify-between"
+          className="bg-accent-lime rounded-2xl p-5 sm:p-6 relative overflow-hidden group hover:-translate-y-1 active:scale-[0.98] transition-[transform,box-shadow] duration-150 ease-out block cursor-pointer shadow-lg h-[160px] sm:h-[180px] flex flex-col justify-between"
         >
           {/* SVG background zig-zag lines */}
           <svg className="absolute inset-0 w-full h-full text-black/10 pointer-events-none" preserveAspectRatio="none" viewBox="0 0 200 100">

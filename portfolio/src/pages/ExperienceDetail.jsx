@@ -147,7 +147,7 @@ export default function ExperienceDetail() {
       </h1>
       
       {exp.role && (
-        <h2 className="font-poppins font-semibold text-lg sm:text-xl text-accent-lime tracking-tight mb-2">
+        <h2 className="font-poppins font-medium text-lg sm:text-xl text-accent-orange tracking-tight mb-2">
           {exp.role}
         </h2>
       )}
@@ -163,7 +163,7 @@ export default function ExperienceDetail() {
             href={exp.link}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-accent-orange text-white text-sm font-poppins font-bold rounded-xl hover:bg-accent-orange/90 hover:scale-[1.02] active:scale-[0.98] transition-all"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-accent-orange text-white text-sm font-poppins font-bold rounded-xl hover:bg-accent-orange/90 active:scale-[0.98] transition-[transform,background-color] duration-150 ease-out"
           >
             <span>Visit Company / Project Website</span>
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

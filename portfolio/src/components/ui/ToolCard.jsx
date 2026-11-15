@@ -6,7 +6,7 @@ export default function ToolCard({ tool }) {
   const content = (
     <>
       {iconUrl ? (
-        <div className="w-10 h-10 sm:w-12 sm:h-12 mb-3 sm:mb-4 rounded-xl overflow-hidden bg-white/5 flex items-center justify-center border border-white/10 group-hover:scale-110 transition-transform duration-300">
+        <div className="w-10 h-10 sm:w-12 sm:h-12 mb-3 sm:mb-4 rounded-xl overflow-hidden bg-white/5 flex items-center justify-center border border-white/10 group-hover:scale-105 transition-transform duration-200 ease-out">
           <img 
             src={iconUrl} 
             alt={tool.title || 'Tool icon'} 
@@ -18,12 +18,12 @@ export default function ToolCard({ tool }) {
           />
         </div>
       ) : (
-        <div className="w-10 h-10 sm:w-12 sm:h-12 mb-3 sm:mb-4 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:scale-110 transition-transform duration-300">
+        <div className="w-10 h-10 sm:w-12 sm:h-12 mb-3 sm:mb-4 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:scale-105 transition-transform duration-200 ease-out">
            <span className="text-white/20 text-xs">No Icon</span>
         </div>
       )}
       <div>
-        <p className="font-poppins font-bold text-white text-base sm:text-lg group-hover:text-accent-orange transition-colors mb-1">
+        <p className="font-poppins font-bold text-white text-base sm:text-lg group-hover:text-accent-orange transition-colors duration-150 mb-1">
           {tool.title}
         </p>
         <p className="text-gray-mid font-inter text-xs sm:text-sm line-clamp-2 leading-relaxed">
@@ -33,7 +33,7 @@ export default function ToolCard({ tool }) {
     </>
   )
 
-  const cardClasses = "group flex flex-col p-4 sm:p-6 bg-white/5 rounded-2xl border border-transparent hover:border-white/10 hover:bg-white/10 active:scale-[0.98] transition-all duration-300 h-full"
+  const cardClasses = "group flex flex-col p-4 sm:p-6 bg-white/5 rounded-2xl border border-transparent hover:border-white/10 hover:bg-white/10 active:scale-[0.97] transition-[transform,background-color,border-color] duration-150 ease-out h-full"
 
   if (tool.link) {
     return (

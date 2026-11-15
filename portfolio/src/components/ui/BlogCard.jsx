@@ -14,13 +14,13 @@ export default function BlogCard({ post }) {
     >
       <Link 
         to={`/blog/${post.slug || post.id}`} 
-        className="block border-b border-white/5 pb-8 mb-8 group cursor-pointer last:border-0 last:pb-0 last:mb-0"
+        className="block border-b border-white/5 pb-8 mb-8 group cursor-pointer last:border-0 last:pb-0 last:mb-0 transition-opacity duration-150 active:opacity-75"
       >
         <div className="flex justify-between items-start gap-4 mb-4">
-          <h3 className="font-poppins font-bold text-2xl sm:text-[28px] text-white group-hover:text-accent-orange transition-colors leading-tight max-w-xl">
+          <h3 className="font-poppins font-bold text-2xl sm:text-[28px] text-white group-hover:text-accent-orange transition-colors duration-150 leading-tight max-w-xl">
             {post.title}
           </h3>
-          <div className="text-accent-orange opacity-0 group-hover:opacity-100 transition-all transform group-hover:translate-x-1 group-hover:-translate-y-1 mt-2 shrink-0">
+          <div className="text-accent-orange opacity-0 group-hover:opacity-100 transition-[transform,opacity] duration-150 ease-[cubic-bezier(0.32,0.72,0,1)] transform group-hover:translate-x-1 group-hover:-translate-y-1 mt-2 shrink-0">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="7" y1="17" x2="17" y2="7"></line>
               <polyline points="7 7 17 7 17 17"></polyline>

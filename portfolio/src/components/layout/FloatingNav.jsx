@@ -99,8 +99,14 @@ export default function FloatingNav() {
               to={to}
               end={to === '/'}
               aria-label={label}
+              onClick={(e) => {
+                if (isActive) {
+                  e.preventDefault()
+                  window.scrollTo({ top: 0, behavior: 'smooth' })
+                }
+              }}
               className={`relative flex flex-col items-center justify-center w-12 h-12 rounded-full
-                transition-all duration-200 active:scale-90
+                transition-[transform,background-color,color] duration-150 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.88]
                 ${isActive ? 'text-accent-orange bg-accent-orange/10' : 'text-[#888888] hover:text-white'}`}
             >
               <span className="w-5 h-5 block pointer-events-none">
@@ -155,8 +161,14 @@ export default function FloatingNav() {
               <NavLink
                 to={to} end={to === '/'}
                 aria-label={label}
+                onClick={(e) => {
+                  if (active(to)) {
+                    e.preventDefault()
+                    window.scrollTo({ top: 0, behavior: 'smooth' })
+                  }
+                }}
                 className={`flex items-center justify-center w-10 h-10 rounded-xl
-                  transition-colors duration-200
+                  transition-colors duration-150 active:scale-95
                   ${active(to) ? 'text-accent-orange' : 'text-[#6e6666] hover:text-white'}`}
               >
                 <span className="w-5 h-5 block pointer-events-none"><Icon /></span>
@@ -232,8 +244,14 @@ export default function FloatingNav() {
                 <NavLink
                   to={to} end={to === '/'}
                   aria-label={label}
+                  onClick={(e) => {
+                    if (active(to)) {
+                      e.preventDefault()
+                      window.scrollTo({ top: 0, behavior: 'smooth' })
+                    }
+                  }}
                   className={`flex items-center justify-center w-12 h-12 rounded-[18px]
-                    transition-colors duration-200
+                    transition-colors duration-150
                     ${active(to) ? 'text-accent-orange' : 'text-[#6e6666] hover:text-white'}`}
                 >
                   <span className="w-5 h-5 block pointer-events-none"><Icon /></span>

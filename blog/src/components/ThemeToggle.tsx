@@ -30,8 +30,10 @@ export function ThemeToggle() {
         Math.max(y, window.innerHeight - y)
       )
 
-      const transition = (document as any).startViewTransition(() => {
+      const transition = (document as any).startViewTransition(async () => {
         setTheme(nextTheme)
+        // Allow microtask tick for next-themes to apply the class to <html>
+        await new Promise((resolve) => setTimeout(resolve, 1))
       })
 
       transition.ready.then(() => {
@@ -43,7 +45,7 @@ export function ThemeToggle() {
             ],
           },
           {
-            duration: 450,
+            duration: 500,
             easing: "cubic-bezier(0.4, 0, 0.2, 1)",
             pseudoElement: "::view-transition-new(root)",
           }

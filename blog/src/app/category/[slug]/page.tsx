@@ -57,7 +57,7 @@ export async function generateMetadata({
       canonical: catUrl,
     },
     openGraph: {
-      title: `${data.category.title} — Pratik Gond Blog`,
+      title: `${data.category.title} | Pratik Gond Blog`,
       description: data.category.description || `Articles on ${data.category.title}`,
       url: catUrl,
       type: "website",

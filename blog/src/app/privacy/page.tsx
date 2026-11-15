@@ -3,7 +3,7 @@ import Link from "next/link"
 
 export const metadata: Metadata = {
   title: "Privacy Policy | Pratik Gond",
-  description: "Privacy Policy for Pratik Gond's Engineering Blog — understanding how your data is collected, handled, and protected.",
+  description: "Privacy Policy for Pratik Gond's Engineering Blog: understanding how your data is collected, handled, and protected.",
   alternates: {
     canonical: "https://blog.pratikgond.tech/privacy",
   },

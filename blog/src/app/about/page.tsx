@@ -5,7 +5,7 @@ import { ArrowRight, Code, Cpu, Server, Sparkles, Terminal, Award } from "lucide
 
 export const metadata: Metadata = {
   title: "About Pratik Gond | Software & AI Engineer",
-  description: "Learn about Pratik Gond — Software Engineer specializing in Artificial Intelligence, RAG toolchains, distributed systems, and web architecture.",
+  description: "Learn about Pratik Gond, Software Engineer specializing in Artificial Intelligence, RAG toolchains, distributed systems, and web architecture.",
   alternates: {
     canonical: "https://blog.pratikgond.tech/about",
   },

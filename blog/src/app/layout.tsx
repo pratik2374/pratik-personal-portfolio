@@ -32,7 +32,7 @@ const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://blog.pratikgond.tec
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
   title: {
-    default: "Pratik Gond — Engineering, AI & Architecture Journal",
+    default: "Pratik Gond | Engineering, AI & Architecture Journal",
     template: "%s | Pratik Gond",
   },
   description:
@@ -67,9 +67,10 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
+      { url: "/favicon.ico", sizes: "any" },
       { url: "/icon.svg", type: "image/svg+xml" },
       { url: "/favicon.svg", type: "image/svg+xml" },
-      { url: "/favicon.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
     ],
     shortcut: "/favicon.ico",
     apple: [
@@ -78,7 +79,7 @@ export const metadata: Metadata = {
   },
   manifest: "/manifest.webmanifest",
   openGraph: {
-    title: "Pratik Gond — Engineering, AI & Architecture Journal",
+    title: "Pratik Gond | Engineering, AI & Architecture Journal",
     description:
       "Technical deep dives into Artificial Intelligence, autonomous agents, modern web architecture, and production software engineering.",
     url: baseUrl,
@@ -96,7 +97,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Pratik Gond — Engineering, AI & Architecture Journal",
+    title: "Pratik Gond | Engineering, AI & Architecture Journal",
     description:
       "Technical deep dives into Artificial Intelligence, autonomous agents, and high-performance software engineering.",
     creator: "@pratikgond",

@@ -36,7 +36,7 @@ export async function GET() {
   const rssFeed = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Pratik Gond — Engineering, AI &amp; Architecture Journal</title>
+    <title>Pratik Gond | Engineering, AI &amp; Architecture Journal</title>
     <link>${siteUrl}</link>
     <description>Technical deep dives into Artificial Intelligence, LLM systems, full-stack architecture, and production engineering lessons by Pratik Gond.</description>
     <language>en-US</language>

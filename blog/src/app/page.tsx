@@ -5,7 +5,7 @@ import { Metadata } from "next"
 export const revalidate = 3600 // Revalidate cache every hour
 
 export const metadata: Metadata = {
-  title: "Pratik Gond — Engineering, AI & Architecture Journal",
+  title: "Pratik Gond | Engineering, AI & Architecture Journal",
   description:
     "Technical deep dives into Artificial Intelligence, autonomous agents, modern web architecture, and production software engineering by Pratik Gond.",
   alternates: {

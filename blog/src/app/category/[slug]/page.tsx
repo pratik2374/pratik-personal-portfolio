@@ -103,7 +103,10 @@ export default async function CategoryPage({
       <div className="container mx-auto px-4 py-16 max-w-6xl">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8" aria-label="Breadcrumb">
-          <Link href="/" className="inline-flex items-center gap-1 hover:text-orange-500 transition-colors">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1 hover:text-orange-500 transition-colors min-h-[44px] py-2 active:scale-[0.98] duration-150"
+          >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>All Articles</span>
           </Link>
@@ -112,20 +115,20 @@ export default async function CategoryPage({
         </nav>
 
         {/* Category Header */}
-        <header className="mb-16 border-b border-gray-200 dark:border-gray-800 pb-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 mb-4">
+        <header className="mb-14 border-b border-gray-200 dark:border-gray-800 pb-10">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 mb-4">
             <Tag className="w-3 h-3" />
             <span>Topic Category</span>
           </div>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-4">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-[-0.02em] text-gray-900 dark:text-white mb-4 leading-[1.12]">
             {category.title}
           </h1>
           {category.description && (
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl leading-relaxed">
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl leading-relaxed font-normal">
               {category.description}
             </p>
           )}
-          <div className="mt-4 text-sm text-gray-500">
+          <div className="mt-4 text-sm text-gray-500 font-normal">
             {posts.length} {posts.length === 1 ? "article" : "articles"} published in this topic
           </div>
         </header>
@@ -136,7 +139,7 @@ export default async function CategoryPage({
             <p className="text-gray-500 text-lg mb-4">No articles published in this category yet.</p>
             <Link
               href="/"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-orange-500 text-white font-medium hover:bg-orange-600 transition-colors"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-orange-500 text-white font-medium hover:bg-orange-600 active:scale-[0.98] transition-all duration-150"
             >
               <span>Back to Homepage</span>
               <ArrowRight className="w-4 h-4" />
@@ -148,9 +151,9 @@ export default async function CategoryPage({
               <Link
                 key={post._id}
                 href={`/blog/${post.slug}`}
-                className="group flex flex-col rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#151515] overflow-hidden hover:border-orange-500/50 hover:shadow-lg transition-all"
+                className="group flex flex-col rounded-2xl border border-gray-200/80 dark:border-gray-800/80 bg-white dark:bg-[#151515] overflow-hidden active:scale-[0.99] transition-transform duration-150"
               >
-                {/* Thumbnail image or branded graphic fallback */}
+                {/* Clean Thumbnail without hover scale jump */}
                 <div className="relative aspect-video w-full overflow-hidden bg-gray-100 dark:bg-gray-800">
                   {post.image ? (
                     <Image
@@ -158,11 +161,11 @@ export default async function CategoryPage({
                       alt={post.title}
                       fill
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="object-cover"
                     />
                   ) : (
-                    <div className="absolute inset-0 bg-linear-to-br from-orange-500/15 via-transparent to-purple-500/10 flex items-center justify-center p-6 text-center">
-                      <span className="text-base font-bold text-gray-700 dark:text-gray-300 group-hover:text-orange-500 transition-colors line-clamp-2">
+                    <div className="absolute inset-0 bg-gray-50 dark:bg-gray-900/60 flex items-center justify-center p-6 text-center">
+                      <span className="text-base font-medium text-gray-400 dark:text-gray-500 group-hover:text-orange-500 transition-colors line-clamp-2">
                         {post.title}
                       </span>
                     </div>
@@ -191,20 +194,20 @@ export default async function CategoryPage({
                       </div>
                     </div>
 
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-orange-500 transition-colors line-clamp-2">
+                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2 group-hover:text-orange-500 transition-colors line-clamp-2 leading-snug">
                       {post.title}
                     </h2>
 
                     {post.summary && (
-                      <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-3 mb-4 leading-relaxed">
+                      <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-3 mb-4 leading-relaxed font-normal">
                         {post.summary}
                       </p>
                     )}
                   </div>
 
-                  <div className="pt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs font-semibold text-orange-500">
+                  <div className="pt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs font-medium text-orange-500">
                     <span>Read Article</span>
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight className="w-4 h-4 group-hover:text-orange-600 transition-colors" />
                   </div>
                 </div>
               </Link>

@@ -301,7 +301,10 @@ export default async function BlogPostPage({
           <div className="container mx-auto px-4 max-w-4xl">
             {/* Breadcrumb Navigation */}
             <div className="flex items-center gap-2 text-xs md:text-sm text-gray-500 dark:text-gray-400 mb-6 flex-wrap">
-              <Link href="/" className="inline-flex items-center gap-1 hover:text-orange-500 transition-colors">
+              <Link
+                href="/"
+                className="inline-flex items-center gap-1 hover:text-orange-500 transition-colors min-h-[44px] py-2 active:scale-[0.98] duration-150"
+              >
                 <ArrowLeft className="w-3.5 h-3.5" />
                 <span>All Articles</span>
               </Link>
@@ -310,7 +313,7 @@ export default async function BlogPostPage({
                   <span>/</span>
                   <Link
                     href={`/category/${post.category.slug}`}
-                    className="hover:text-orange-500 transition-colors font-medium text-gray-700 dark:text-gray-300"
+                    className="hover:text-orange-500 transition-colors font-medium text-gray-700 dark:text-gray-300 min-h-[44px] py-2 inline-flex items-center active:scale-[0.98] duration-150"
                   >
                     {post.category.title}
                   </Link>
@@ -323,7 +326,7 @@ export default async function BlogPostPage({
               <div className="mb-4">
                 <Link
                   href={`/category/${post.category.slug}`}
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 hover:bg-orange-500/20 transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 hover:bg-orange-500/20 active:scale-95 transition-all duration-150"
                 >
                   <Tag className="w-3 h-3" />
                   <span>{post.category.title}</span>
@@ -332,7 +335,7 @@ export default async function BlogPostPage({
             )}
 
             {/* Article Headline */}
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-6 leading-[1.15]">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold tracking-[-0.02em] text-gray-900 dark:text-white mb-6 leading-[1.12]">
               {post.title}
             </h1>
 
@@ -403,7 +406,7 @@ export default async function BlogPostPage({
 
           <div
             className="prose prose-lg md:prose-xl dark:prose-invert max-w-none 
-            prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-gray-900 dark:prose-headings:text-white
+            prose-headings:font-semibold prose-headings:tracking-[-0.015em] prose-headings:text-gray-900 dark:prose-headings:text-white
             prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-p:leading-relaxed
             prose-a:text-orange-500 hover:prose-a:underline
             prose-strong:text-gray-900 dark:prose-strong:text-white
@@ -420,8 +423,8 @@ export default async function BlogPostPage({
           {/* Tags Footer */}
           {post.tags && post.tags.length > 0 && (
             <div className="mt-12 pt-6 border-t border-gray-200 dark:border-gray-800 flex items-center gap-2 flex-wrap">
-              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400 mr-2">
-                Tagged In:
+              <span className="text-xs font-medium text-gray-500 mr-2">
+                Tagged in:
               </span>
               {post.tags.map((tag) => (
                 <span
@@ -435,18 +438,18 @@ export default async function BlogPostPage({
           )}
 
           {/* Author Box */}
-          <div className="mt-16 p-8 rounded-3xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#141414] flex flex-col sm:flex-row items-start sm:items-center gap-6">
-            <div className="w-16 h-16 rounded-2xl bg-orange-500 flex items-center justify-center text-white text-2xl font-black shrink-0 shadow-md shadow-orange-500/25">
+          <div className="mt-16 p-8 rounded-3xl border border-gray-200 dark:border-gray-800 bg-gray-50/70 dark:bg-[#141414] flex flex-col sm:flex-row items-start sm:items-center gap-6">
+            <div className="w-14 h-14 rounded-2xl bg-orange-500 flex items-center justify-center text-white text-xl font-medium shrink-0">
               P
             </div>
             <div className="flex-1">
               <div className="flex items-center justify-between gap-4 mb-1">
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Written by Pratik Gond</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Written by Pratik Gond</h3>
                 <a
                   href="https://pratikgond.tech"
                   target="_blank"
                   rel="noreferrer"
-                  className="text-xs font-semibold text-orange-500 hover:underline"
+                  className="text-xs font-medium text-orange-500 hover:underline active:scale-95 duration-150"
                 >
                   Portfolio ↗
                 </a>
@@ -455,15 +458,15 @@ export default async function BlogPostPage({
                 Software &amp; AI Engineer with 12+ years of experience building modern web architectures, autonomous LLM agents, and distributed applications.
               </p>
               <div className="flex items-center gap-4 text-xs font-medium text-gray-500 dark:text-gray-400">
-                <a href="https://github.com/pratikgond" target="_blank" rel="noreferrer" className="hover:text-black dark:hover:text-white">
+                <a href="https://github.com/pratikgond" target="_blank" rel="noreferrer" className="hover:text-black dark:hover:text-white active:scale-95 duration-150">
                   GitHub
                 </a>
                 <span>·</span>
-                <a href="https://linkedin.com/in/pratikgond" target="_blank" rel="noreferrer" className="hover:text-blue-500">
+                <a href="https://linkedin.com/in/pratikgond" target="_blank" rel="noreferrer" className="hover:text-blue-500 active:scale-95 duration-150">
                   LinkedIn
                 </a>
                 <span>·</span>
-                <Link href="/contact" className="hover:text-orange-500">
+                <Link href="/contact" className="hover:text-orange-500 active:scale-95 duration-150">
                   Contact
                 </Link>
               </div>
@@ -476,10 +479,10 @@ export default async function BlogPostPage({
           <div className="container mx-auto px-4 max-w-5xl mt-20 pt-16 border-t border-gray-200 dark:border-gray-800">
             <div className="flex items-center justify-between mb-8">
               <div>
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Related Technical Articles</h3>
+                <h3 className="text-2xl font-semibold text-gray-900 dark:text-white tracking-tight">Related Articles</h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Continue exploring deep engineering insights</p>
               </div>
-              <Link href="/" className="text-sm font-semibold text-orange-500 hover:underline hidden sm:inline-flex items-center gap-1">
+              <Link href="/" className="text-sm font-medium text-orange-500 hover:underline hidden sm:inline-flex items-center gap-1 active:scale-95 duration-150">
                 <span>View all posts</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
@@ -490,24 +493,24 @@ export default async function BlogPostPage({
                 <Link
                   key={rPost._id}
                   href={`/blog/${rPost.slug}`}
-                  className="group p-6 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#151515] hover:border-orange-500/50 hover:shadow-md transition-all flex flex-col justify-between"
+                  className="group p-6 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#151515] hover:border-orange-500/50 active:scale-[0.99] transition-all duration-150 flex flex-col justify-between"
                 >
                   <div>
                     {rPost.category && (
-                      <span className="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-orange-500/10 text-orange-600 dark:text-orange-400 mb-3">
+                      <span className="inline-block px-2.5 py-1 rounded-md text-[11px] font-medium bg-orange-500/10 text-orange-600 dark:text-orange-400 mb-3">
                         {rPost.category.title}
                       </span>
                     )}
-                    <h4 className="font-bold text-gray-900 dark:text-white group-hover:text-orange-500 transition-colors mb-2 line-clamp-2">
+                    <h4 className="font-semibold text-gray-900 dark:text-white group-hover:text-orange-500 transition-colors mb-2 line-clamp-2 leading-snug">
                       {rPost.title}
                     </h4>
-                    <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2 mb-4">
+                    <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2 mb-4 leading-relaxed font-normal">
                       {rPost.summary}
                     </p>
                   </div>
-                  <div className="text-[11px] text-gray-500 flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-800">
+                  <div className="text-[11px] text-gray-500 flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-800 font-medium">
                     <span>{rPost.readTime || "5 min read"}</span>
-                    <span className="font-semibold text-orange-500 group-hover:translate-x-1 transition-transform">Read →</span>
+                    <span className="text-orange-500 group-hover:text-orange-600 transition-colors">Read →</span>
                   </div>
                 </Link>
               ))}

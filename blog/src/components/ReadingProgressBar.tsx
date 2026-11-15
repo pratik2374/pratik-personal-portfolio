@@ -25,7 +25,7 @@ export function ReadingProgressBar() {
       aria-hidden="true"
     >
       <div
-        className="h-full bg-linear-to-r from-orange-500 to-amber-400 transition-[width] duration-75 ease-out shadow-[0_0_8px_rgba(255,101,0,0.6)]"
+        className="h-full bg-orange-500 transition-[width] duration-75 ease-out"
         style={{ width: `${scrollProgress}%` }}
       />
     </div>

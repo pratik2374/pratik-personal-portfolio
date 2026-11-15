@@ -31,7 +31,7 @@ export function CodeBlock({ language, code }: CodeBlockProps) {
         </span>
         <button
           onClick={handleCopy}
-          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-gray-400 hover:text-white bg-gray-800/60 hover:bg-gray-700 transition-colors focus:outline-hidden"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] rounded-md text-gray-400 hover:text-white bg-gray-800/60 hover:bg-gray-700 active:scale-95 transition-all duration-150 focus:outline-hidden cursor-pointer"
           title="Copy code to clipboard"
           aria-label="Copy code to clipboard"
         >

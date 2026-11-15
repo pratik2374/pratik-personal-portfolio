@@ -15,33 +15,38 @@ export default function AboutPage() {
   return (
     <div className="container mx-auto px-4 py-16 max-w-4xl">
       <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8" aria-label="Breadcrumb">
-        <Link href="/" className="hover:text-orange-500 transition-colors">Home</Link>
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1 hover:text-orange-500 transition-colors min-h-[44px] py-2 active:scale-[0.98] duration-150"
+        >
+          Home
+        </Link>
         <span>/</span>
         <span className="text-gray-900 dark:text-white font-medium">About</span>
       </nav>
 
       {/* Hero Header */}
-      <header className="mb-16">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 mb-4">
+      <header className="mb-14">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 mb-4">
           <Terminal className="w-3.5 h-3.5" />
-          About the Author
+          <span>About the Author</span>
         </div>
-        <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-6 leading-tight">
+        <h1 className="text-4xl md:text-6xl font-semibold tracking-[-0.02em] text-gray-900 dark:text-white mb-6 leading-tight">
           Hi, I&apos;m <span className="text-orange-500">Pratik Gond</span>.
         </h1>
-        <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 max-w-3xl leading-relaxed">
+        <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 max-w-3xl leading-relaxed font-normal">
           I build resilient software systems, explore frontier Artificial Intelligence, and write technical blueprints for modern engineering teams.
         </p>
       </header>
 
       {/* Profile Card & Highlights */}
-      <div className="p-8 rounded-3xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#151515]/50 backdrop-blur mb-16 grid grid-cols-1 sm:grid-cols-3 gap-6">
+      <div className="p-8 rounded-3xl border border-gray-200 dark:border-gray-800 bg-gray-50/70 dark:bg-[#151515]/70 mb-16 grid grid-cols-1 sm:grid-cols-3 gap-6">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 rounded-2xl bg-orange-500/10 text-orange-500 flex items-center justify-center shrink-0">
             <Award className="w-6 h-6" />
           </div>
           <div>
-            <div className="text-2xl font-bold text-gray-900 dark:text-white">12+ Years</div>
+            <div className="text-2xl font-semibold text-gray-900 dark:text-white">12+ Years</div>
             <div className="text-xs text-gray-500 dark:text-gray-400">Engineering Experience</div>
           </div>
         </div>
@@ -51,7 +56,7 @@ export default function AboutPage() {
             <Cpu className="w-6 h-6" />
           </div>
           <div>
-            <div className="text-2xl font-bold text-gray-900 dark:text-white">AI & Agents</div>
+            <div className="text-2xl font-semibold text-gray-900 dark:text-white">AI & Agents</div>
             <div className="text-xs text-gray-500 dark:text-gray-400">RAG, LLMs & Multi-Agent</div>
           </div>
         </div>
@@ -61,14 +66,14 @@ export default function AboutPage() {
             <Server className="w-6 h-6" />
           </div>
           <div>
-            <div className="text-2xl font-bold text-gray-900 dark:text-white">Scale & Cloud</div>
+            <div className="text-2xl font-semibold text-gray-900 dark:text-white">Scale & Cloud</div>
             <div className="text-xs text-gray-500 dark:text-gray-400">Distributed Architecture</div>
           </div>
         </div>
       </div>
 
       {/* Main Narrative */}
-      <article className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-bold prose-headings:tracking-tight prose-a:text-orange-500 mb-16">
+      <article className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-semibold prose-headings:tracking-tight prose-a:text-orange-500 mb-16">
         <h2>Engineering Philosophy</h2>
         <p>
           I believe exceptional software is born at the intersection of rigorous architecture, uncompromising performance,
@@ -94,10 +99,10 @@ export default function AboutPage() {
       </article>
 
       {/* CTA to Portfolio */}
-      <div className="rounded-3xl border border-orange-500/20 bg-linear-to-br from-orange-500/10 via-transparent to-transparent p-8 md:p-12 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+      <div className="rounded-3xl border border-gray-200 dark:border-gray-800 bg-gray-50/80 dark:bg-[#141414] p-8 md:p-12 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div>
-          <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Want to see live projects?</h3>
-          <p className="text-gray-600 dark:text-gray-400 text-base max-w-xl">
+          <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">Want to see live projects?</h3>
+          <p className="text-gray-600 dark:text-gray-400 text-base max-w-xl font-normal">
             Explore interactive case studies, production demo videos, GitHub repositories, and full work history on my main portfolio.
           </p>
         </div>
@@ -105,7 +110,7 @@ export default function AboutPage() {
           href="https://pratikgond.tech"
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-semibold transition-colors shrink-0 shadow-lg shadow-orange-500/25"
+          className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-medium transition-colors shrink-0 active:scale-[0.98] duration-150"
         >
           <span>Explore Portfolio</span>
           <ArrowRight className="w-4 h-4" />

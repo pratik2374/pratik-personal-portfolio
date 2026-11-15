@@ -42,11 +42,11 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
 
   return (
     <nav className="p-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#141414]/50 backdrop-blur-xs mb-10 text-sm">
-      <div className="flex items-center gap-2 font-bold text-gray-900 dark:text-white mb-3">
+      <div className="flex items-center gap-2 font-semibold text-gray-900 dark:text-white mb-3">
         <ListCollapse className="w-4 h-4 text-orange-500" />
         <span>Table of Contents</span>
       </div>
-      <ul className="space-y-1.5 border-l border-gray-200 dark:border-gray-800 pl-3">
+      <ul className="space-y-0.5 border-l border-gray-200 dark:border-gray-800 pl-3">
         {headings.map((h) => {
           const isActive = activeId === h.id
           return (
@@ -58,9 +58,9 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
             >
               <a
                 href={`#${h.id}`}
-                className={`block py-1 transition-colors hover:text-orange-500 ${
+                className={`flex items-center min-h-[38px] sm:min-h-[36px] py-1.5 transition-colors duration-150 active:scale-[0.98] hover:text-orange-500 ${
                   isActive
-                    ? "font-semibold text-orange-500 dark:text-orange-400"
+                    ? "font-medium text-orange-500 dark:text-orange-400"
                     : "text-gray-600 dark:text-gray-400"
                 }`}
               >

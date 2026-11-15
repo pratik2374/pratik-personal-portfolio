@@ -18,7 +18,7 @@ export default function ExperienceSection() {
         className="mb-8 sm:mb-12"
       >
         <h2 className="font-poppins font-bold text-4xl sm:text-6xl md:text-[72px] leading-[0.95] sm:leading-[0.9] tracking-tighter text-white uppercase">
-          12 YEARS OF
+          2 YEARS OF
         </h2>
         <h2 className="font-poppins font-bold text-4xl sm:text-6xl md:text-[72px] leading-[0.95] sm:leading-[0.9] tracking-tighter text-[#333333] uppercase">
           EXPERIENCE

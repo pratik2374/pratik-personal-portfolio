@@ -405,7 +405,7 @@ export default async function BlogPostPage({
           <div className="max-w-[1600px] mx-auto xl:grid xl:grid-cols-[1fr_minmax(0,48rem)_1fr] xl:gap-8 2xl:gap-14 items-start">
             {/* Desktop Left Sticky TOC Rail */}
             {headings.length > 0 ? (
-              <aside className="hidden xl:block justify-self-end w-48 xl:w-52 2xl:w-60 sticky top-24 self-start max-h-[calc(100vh-8rem)] overflow-y-auto pr-4">
+              <aside className="hidden xl:block justify-self-end w-48 xl:w-52 2xl:w-60 sticky top-24 self-start">
                 <TableOfContents headings={headings} variant="desktop" />
               </aside>
             ) : (

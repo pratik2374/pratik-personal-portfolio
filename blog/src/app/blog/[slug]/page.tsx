@@ -401,76 +401,93 @@ export default async function BlogPostPage({
         )}
 
         {/* Article Body + Table of Contents */}
-        <div className="container mx-auto px-4 max-w-3xl mt-8">
-          {headings.length > 0 && <TableOfContents headings={headings} />}
-
-          <div
-            className="prose prose-lg md:prose-xl dark:prose-invert max-w-none 
-            prose-headings:font-semibold prose-headings:tracking-[-0.015em] prose-headings:text-gray-900 dark:prose-headings:text-white
-            prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-p:leading-relaxed
-            prose-a:text-orange-500 hover:prose-a:underline
-            prose-strong:text-gray-900 dark:prose-strong:text-white
-            prose-code:text-orange-500 dark:prose-code:text-orange-400 prose-code:font-mono prose-code:text-sm prose-code:bg-gray-100 dark:prose-code:bg-gray-800/80 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md
-            prose-blockquote:border-l-4 prose-blockquote:border-orange-500 prose-blockquote:text-gray-700 dark:prose-blockquote:text-gray-300 prose-blockquote:bg-orange-500/5 prose-blockquote:py-1 prose-blockquote:px-4 prose-blockquote:rounded-r-lg"
-          >
-            {post.content ? (
-              <PortableText value={post.content} components={ptComponents} />
-            ) : (
-              <p>No content available.</p>
+        <div className="container mx-auto px-4 max-w-6xl mt-8">
+          <div className="flex flex-col xl:flex-row gap-12 justify-center items-start">
+            {/* Desktop Left Sticky TOC Rail */}
+            {headings.length > 0 && (
+              <aside className="hidden xl:block w-64 shrink-0 sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto pr-2">
+                <TableOfContents headings={headings} variant="desktop" />
+              </aside>
             )}
-          </div>
 
-          {/* Tags Footer */}
-          {post.tags && post.tags.length > 0 && (
-            <div className="mt-12 pt-6 border-t border-gray-200 dark:border-gray-800 flex items-center gap-2 flex-wrap">
-              <span className="text-xs font-medium text-gray-500 mr-2">
-                Tagged in:
-              </span>
-              {post.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="px-3 py-1 rounded-lg text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700"
-                >
-                  #{tag}
-                </span>
-              ))}
-            </div>
-          )}
+            {/* Main Content Column */}
+            <main className="max-w-3xl w-full min-w-0">
+              {/* Mobile / Tablet Collapsible Expander TOC */}
+              {headings.length > 0 && (
+                <div className="xl:hidden mb-8">
+                  <TableOfContents headings={headings} variant="mobile" />
+                </div>
+              )}
 
-          {/* Author Box */}
-          <div className="mt-16 p-8 rounded-3xl border border-gray-200 dark:border-gray-800 bg-gray-50/70 dark:bg-[#141414] flex flex-col sm:flex-row items-start sm:items-center gap-6">
-            <div className="w-14 h-14 rounded-2xl bg-orange-500 flex items-center justify-center text-white text-xl font-medium shrink-0">
-              P
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center justify-between gap-4 mb-1">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Written by Pratik Gond</h3>
-                <a
-                  href="https://pratikgond.tech"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-xs font-medium text-orange-500 hover:underline active:scale-95 duration-150"
-                >
-                  Portfolio ↗
-                </a>
+              <div
+                className="prose prose-lg md:prose-xl dark:prose-invert max-w-none 
+                prose-headings:font-semibold prose-headings:tracking-[-0.015em] prose-headings:text-gray-900 dark:prose-headings:text-white
+                prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-p:leading-relaxed
+                prose-a:text-orange-500 hover:prose-a:underline
+                prose-strong:text-gray-900 dark:prose-strong:text-white
+                prose-code:text-orange-500 dark:prose-code:text-orange-400 prose-code:font-mono prose-code:text-sm prose-code:bg-gray-100 dark:prose-code:bg-gray-800/80 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md
+                prose-blockquote:border-l-4 prose-blockquote:border-orange-500 prose-blockquote:text-gray-700 dark:prose-blockquote:text-gray-300 prose-blockquote:bg-orange-500/5 prose-blockquote:py-1 prose-blockquote:px-4 prose-blockquote:rounded-r-lg"
+              >
+                {post.content ? (
+                  <PortableText value={post.content} components={ptComponents} />
+                ) : (
+                  <p>No content available.</p>
+                )}
               </div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed mb-3">
-                Software &amp; AI Engineer with 12+ years of experience building modern web architectures, autonomous LLM agents, and distributed applications.
-              </p>
-              <div className="flex items-center gap-4 text-xs font-medium text-gray-500 dark:text-gray-400">
-                <a href="https://github.com/pratikgond" target="_blank" rel="noreferrer" className="hover:text-black dark:hover:text-white active:scale-95 duration-150">
-                  GitHub
-                </a>
-                <span>·</span>
-                <a href="https://linkedin.com/in/pratikgond" target="_blank" rel="noreferrer" className="hover:text-blue-500 active:scale-95 duration-150">
-                  LinkedIn
-                </a>
-                <span>·</span>
-                <Link href="/contact" className="hover:text-orange-500 active:scale-95 duration-150">
-                  Contact
-                </Link>
+
+              {/* Tags Footer */}
+              {post.tags && post.tags.length > 0 && (
+                <div className="mt-12 pt-6 border-t border-gray-200 dark:border-gray-800 flex items-center gap-2 flex-wrap">
+                  <span className="text-xs font-medium text-gray-500 mr-2">
+                    Tagged in:
+                  </span>
+                  {post.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="px-3 py-1 rounded-lg text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700"
+                    >
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* Author Box */}
+              <div className="mt-16 p-8 rounded-3xl border border-gray-200 dark:border-gray-800 bg-gray-50/70 dark:bg-[#141414] flex flex-col sm:flex-row items-start sm:items-center gap-6">
+                <div className="w-14 h-14 rounded-2xl bg-orange-500 flex items-center justify-center text-white text-xl font-medium shrink-0">
+                  P
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between gap-4 mb-1">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Written by Pratik Gond</h3>
+                    <a
+                      href="https://pratikgond.tech"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-xs font-medium text-orange-500 hover:underline active:scale-95 duration-150"
+                    >
+                      Portfolio ↗
+                    </a>
+                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed mb-3">
+                    Software &amp; AI Engineer with 12+ years of experience building modern web architectures, autonomous LLM agents, and distributed applications.
+                  </p>
+                  <div className="flex items-center gap-4 text-xs font-medium text-gray-500 dark:text-gray-400">
+                    <a href="https://github.com/pratikgond" target="_blank" rel="noreferrer" className="hover:text-black dark:hover:text-white active:scale-95 duration-150">
+                      GitHub
+                    </a>
+                    <span>·</span>
+                    <a href="https://linkedin.com/in/pratikgond" target="_blank" rel="noreferrer" className="hover:text-blue-500 active:scale-95 duration-150">
+                      LinkedIn
+                    </a>
+                    <span>·</span>
+                    <Link href="/contact" className="hover:text-orange-500 active:scale-95 duration-150">
+                      Contact
+                    </Link>
+                  </div>
+                </div>
               </div>
-            </div>
+            </main>
           </div>
         </div>
 

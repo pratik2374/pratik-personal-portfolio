@@ -401,17 +401,19 @@ export default async function BlogPostPage({
         )}
 
         {/* Article Body + Table of Contents */}
-        <div className="container mx-auto px-4 max-w-6xl mt-8">
-          <div className="flex flex-col xl:flex-row gap-12 justify-center items-start">
+        <div className="w-full px-4 mt-8">
+          <div className="max-w-[1600px] mx-auto xl:grid xl:grid-cols-[1fr_minmax(0,48rem)_1fr] xl:gap-8 2xl:gap-14 items-start">
             {/* Desktop Left Sticky TOC Rail */}
-            {headings.length > 0 && (
-              <aside className="hidden xl:block w-64 shrink-0 sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto pr-2">
+            {headings.length > 0 ? (
+              <aside className="hidden xl:block justify-self-end w-48 xl:w-52 2xl:w-60 sticky top-24 self-start max-h-[calc(100vh-8rem)] overflow-y-auto pr-4">
                 <TableOfContents headings={headings} variant="desktop" />
               </aside>
+            ) : (
+              <div className="hidden xl:block" aria-hidden="true" />
             )}
 
-            {/* Main Content Column */}
-            <main className="max-w-3xl w-full min-w-0">
+            {/* Main Content Column - ALWAYS CENTERED */}
+            <main className="w-full max-w-3xl mx-auto min-w-0">
               {/* Mobile / Tablet Collapsible Expander TOC */}
               {headings.length > 0 && (
                 <div className="xl:hidden mb-8">
@@ -488,6 +490,9 @@ export default async function BlogPostPage({
                 </div>
               </div>
             </main>
+
+            {/* Right Column Balancer Spacer - Ensures Column 2 is 100% mathematically centered */}
+            <div className="hidden xl:block" aria-hidden="true" />
           </div>
         </div>
 

@@ -15,7 +15,7 @@ interface TableOfContentsProps {
 }
 
 export function TableOfContents({ headings, variant = "desktop" }: TableOfContentsProps) {
-  const [activeId, setActiveId] = useState<string>("")
+  const [activeId, setActiveId] = useState<string>(() => headings[0]?.id || "")
   const [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
@@ -99,23 +99,29 @@ export function TableOfContents({ headings, variant = "desktop" }: TableOfConten
   // 2. Desktop Sticky Left Rail Variant (Compact, Quiet, Editorial)
   return (
     <nav className="w-full text-xs" aria-label="Table of Contents">
-      <div className="flex items-center gap-2 font-semibold text-gray-900 dark:text-white mb-3 text-xs uppercase tracking-wider">
-        <ListCollapse className="w-3.5 h-3.5 text-orange-500 shrink-0" />
-        <span>On this page</span>
+      <div className="flex items-center gap-2 font-bold text-gray-900 dark:text-white mb-3.5 text-sm tracking-tight">
+        <ListCollapse className="w-4 h-4 text-orange-500 shrink-0" />
+        <span>Table of Contents</span>
       </div>
-      <ul className="space-y-1 border-l border-gray-200 dark:border-gray-800 pl-3">
+      <ul className="space-y-1.5 border-l border-gray-200 dark:border-gray-800 pl-3">
         {headings.map((h) => {
           const isActive = activeId === h.id
           return (
             <li
               key={h.id}
-              className={h.level === 3 ? "ml-2.5 text-[11px]" : "text-xs"}
+              className={`relative ${
+                h.level === 3 ? "ml-3 text-[11px]" : "text-xs"
+              }`}
             >
               <a
                 href={`#${h.id}`}
-                className={`block py-1 leading-snug transition-colors duration-150 active:scale-[0.98] ${
+                className={`block py-1 leading-snug transition-colors duration-150 ${
                   isActive
-                    ? "font-medium text-orange-500 dark:text-orange-400"
+                    ? `font-medium text-orange-500 dark:text-orange-400 ${
+                        h.level === 3
+                          ? "before:absolute before:-left-[25px] before:top-0 before:bottom-0 before:w-[2px] before:bg-orange-500 before:rounded-full"
+                          : "before:absolute before:-left-[13px] before:top-0 before:bottom-0 before:w-[2px] before:bg-orange-500 before:rounded-full"
+                      }`
                     : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                 }`}
               >

@@ -52,4 +52,17 @@ export const category = defineType({
       initialValue: 1,
     }),
   ],
+  orderings: [
+    {
+      title: 'Display order',
+      name: 'displayOrder',
+      by: [{ field: 'order', direction: 'asc' }],
+    },
+  ],
+  preview: {
+    select: { title: 'title', order: 'order', color: 'color' },
+    prepare({ title, order, color }) {
+      return { title, subtitle: [order != null ? `#${order}` : null, color].filter(Boolean).join(' · ') }
+    },
+  },
 })

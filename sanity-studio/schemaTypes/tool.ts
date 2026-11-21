@@ -1,4 +1,5 @@
 import { defineField, defineType } from 'sanity'
+import { altField } from './imageWithAlt'
 
 export const tool = defineType({
   name: 'tool',
@@ -26,6 +27,7 @@ export const tool = defineType({
       title: 'Tool Icon / Image',
       type: 'image',
       options: { hotspot: true },
+      fields: [altField],
     }),
     defineField({
       name: 'description',
@@ -39,4 +41,7 @@ export const tool = defineType({
       type: 'url',
     }),
   ],
+  preview: {
+    select: { title: 'title', subtitle: 'description', media: 'image' },
+  },
 })

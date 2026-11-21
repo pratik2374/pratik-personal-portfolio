@@ -1,4 +1,5 @@
 import { defineField, defineType } from 'sanity'
+import { altField } from './imageWithAlt'
 
 export const project = defineType({
   name: 'project',
@@ -26,12 +27,13 @@ export const project = defineType({
       title: 'Cover Image',
       type: 'image',
       options: { hotspot: true },
+      fields: [altField],
     }),
     defineField({
       name: 'gallery',
       title: 'Image Gallery',
       type: 'array',
-      of: [{ type: 'image', options: { hotspot: true } }],
+      of: [{ type: 'image', options: { hotspot: true }, fields: [altField] }],
     }),
     defineField({
       name: 'description',
@@ -60,4 +62,7 @@ export const project = defineType({
       type: 'url',
     }),
   ],
+  preview: {
+    select: { title: 'title', subtitle: 'link', media: 'image' },
+  },
 })

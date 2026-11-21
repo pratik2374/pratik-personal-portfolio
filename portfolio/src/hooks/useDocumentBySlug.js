@@ -1,55 +1,46 @@
 import { useState, useEffect } from 'react'
-import { sanityClient } from '../lib/sanity'
+import { documentKey, fetchDocument, readCache } from '../lib/content'
 
-export function useDocumentBySlug(collectionName, slug) {
-  const cacheKey = `portfolio_doc_${collectionName}_${slug}`
+function initialState(key) {
+  const cached = key ? readCache(key) : undefined
+  return { key, doc: cached ?? null, loading: Boolean(key) && !cached, error: null }
+}
 
-  const [doc, setDoc] = useState(() => {
-    try {
-      const cached = localStorage.getItem(cacheKey)
-      if (cached) return JSON.parse(cached)
-    } catch (e) {}
-    return null
-  })
+/**
+ * Loads one document by slug. State is keyed by slug, so navigating from one
+ * project to another never shows the previous project's content or error.
+ */
+export function useDocumentBySlug(name, slug) {
+  const key = slug ? documentKey(name, slug) : null
+  const [state, setState] = useState(() => initialState(key))
 
-  const [loading, setLoading] = useState(() => {
-    try {
-      const cached = localStorage.getItem(cacheKey)
-      if (cached) return false
-    } catch (e) {}
-    return true
-  })
-
-  const [error, setError] = useState(null)
+  // Slug changed: reset during render (no flash of the previous document).
+  let current = state
+  if (state.key !== key) {
+    current = initialState(key)
+    setState(current)
+  }
 
   useEffect(() => {
-    if (!slug) return
-
-    const typeMap = {
-      'projects': 'project',
-      'experience': 'experience',
-      'blog': 'blog',
-      'tools': 'tool'
-    }
-    const type = typeMap[collectionName] || collectionName
-
-    const query = `*[_type == "${type}" && slug.current == "${slug}" && !(_id in path("drafts.**"))][0]`
-
-    sanityClient.fetch(query)
-      .then(result => {
-        if (result) {
-          const mapped = { ...result, id: result._id, slug: result.slug?.current || result.slug }
-          setDoc(mapped)
-          try {
-            localStorage.setItem(cacheKey, JSON.stringify(mapped))
-          } catch (e) {}
-        } else {
-          setError(new Error('Document not found'))
-        }
+    if (!key) return
+    let active = true
+    fetchDocument(name, slug)
+      .then((doc) => {
+        if (!active) return
+        setState({
+          key,
+          doc,
+          loading: false,
+          error: doc ? null : new Error('Document not found'),
+        })
       })
-      .catch(setError)
-      .finally(() => setLoading(false))
-  }, [collectionName, slug, cacheKey])
+      .catch((error) => {
+        if (active) setState((prev) => (prev.key === key ? { ...prev, loading: false, error } : prev))
+      })
+    return () => {
+      active = false
+    }
+  }, [name, slug, key])
 
-  return { doc, loading, error }
+  return { doc: current.doc, loading: current.loading, error: current.error }
 }

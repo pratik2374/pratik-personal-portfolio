@@ -1,5 +1,6 @@
-import { settings as staticSettings } from '../data/settings'
+import { useSettingsContext } from '../context/SettingsContext'
 
+/** The merged shared profile (Sanity `siteSettings` over the static fallback). */
 export function useSettings() {
-  return { settings: staticSettings, loading: false }
+  return useSettingsContext()
 }

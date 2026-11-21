@@ -1,61 +1,29 @@
 import { useState, useEffect } from 'react'
-import { sanityClient } from '../lib/sanity'
+import { collectionKey, fetchCollection, readCache } from '../lib/content'
 
-export function useCollection(collectionName, orderField = '_createdAt') {
-  const cacheKey = `portfolio_cache_${collectionName}_${orderField}`
-
-  const [data, setData] = useState(() => {
-    try {
-      const cached = localStorage.getItem(cacheKey)
-      if (cached) {
-        return JSON.parse(cached)
-      }
-    } catch (e) {
-      // Ignore storage errors
-    }
-    return []
+/**
+ * Stale-while-revalidate list hook: renders cached data instantly (memory or
+ * localStorage), then refreshes from Sanity in the background.
+ */
+export function useCollection(name) {
+  const [state, setState] = useState(() => {
+    const cached = readCache(collectionKey(name))
+    return { data: cached ?? [], loading: !cached, error: null }
   })
-
-  const [loading, setLoading] = useState(() => {
-    try {
-      const cached = localStorage.getItem(cacheKey)
-      if (cached) return false
-    } catch (e) {}
-    return true
-  })
-
-  const [error, setError] = useState(null)
 
   useEffect(() => {
-    const typeMap = {
-      'projects': 'project',
-      'experience': 'experience',
-      'blog': 'blog',
-      'tools': 'tool'
-    }
-    const type = typeMap[collectionName] || collectionName
-
-    const orderStr = orderField === 'order' || orderField === 'manualOrder' 
-      ? `order(${orderField} asc)` 
-      : `order(${orderField} desc)`
-
-    const query = `*[_type == "${type}" && !(_id in path("drafts.**"))] | ${orderStr}`
-
-    sanityClient.fetch(query)
-      .then(docs => {
-        const mapped = docs.map(doc => ({ 
-          ...doc, 
-          id: doc._id,
-          slug: doc.slug?.current || doc.slug
-        }))
-        setData(mapped)
-        try {
-          localStorage.setItem(cacheKey, JSON.stringify(mapped))
-        } catch (e) {}
+    let active = true
+    fetchCollection(name)
+      .then((data) => {
+        if (active) setState({ data, loading: false, error: null })
       })
-      .catch(setError)
-      .finally(() => setLoading(false))
-  }, [collectionName, orderField, cacheKey])
+      .catch((error) => {
+        if (active) setState((prev) => ({ ...prev, loading: false, error }))
+      })
+    return () => {
+      active = false
+    }
+  }, [name])
 
-  return { data, loading, error }
+  return state
 }

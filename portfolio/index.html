@@ -3,12 +3,74 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>Pratik Gond</title>
-    <link rel="icon" type="image/png" href="/favicon.svg" />
-    <meta name="description" content="AI Engineer · LLMs · RAG · Generative AI" />
+    <title>Pratik Gond · Software &amp; AI Engineer</title>
+    <meta name="description" content="Pratik Gond, Software &amp; AI Engineer: projects and experience in LLMs, RAG, generative AI and AI agents." />
+    <meta name="theme-color" content="#151312" />
+    <link rel="canonical" href="https://pratikgond.tech/" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate icon" type="image/png" href="/favicon.png" />
+
+    <!-- Social previews -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Pratik Gond" />
+    <meta property="og:title" content="Pratik Gond · Software &amp; AI Engineer" />
+    <meta property="og:description" content="Projects and experience in LLMs, RAG, generative AI and AI agents." />
+    <meta property="og:url" content="https://pratikgond.tech/" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Pratik Gond · Software &amp; AI Engineer" />
+    <meta name="twitter:description" content="Projects and experience in LLMs, RAG, generative AI and AI agents." />
+
+    <!-- Structured data: same Person @id as the blog so search engines merge the two sites' signals. -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://pratikgond.tech/#website",
+            "url": "https://pratikgond.tech/",
+            "name": "Pratik Gond",
+            "publisher": { "@id": "https://pratikgond.tech/#person" }
+          },
+          {
+            "@type": "Person",
+            "@id": "https://pratikgond.tech/#person",
+            "name": "Pratik Gond",
+            "url": "https://pratikgond.tech",
+            "jobTitle": "Software & AI Engineer",
+            "sameAs": [
+              "https://github.com/pratik2374",
+              "https://linkedin.com/in/pratikgond",
+              "https://blog.pratikgond.tech"
+            ],
+            "knowsAbout": [
+              "Large Language Models",
+              "Retrieval-Augmented Generation",
+              "Generative AI",
+              "AI Agents",
+              "Python",
+              "C++"
+            ]
+          }
+        ]
+      }
+    </script>
+
+    <!-- Warm up connections to the content API and image CDN before React asks for them. -->
+    <link rel="preconnect" href="https://8j6w8ohu.apicdn.sanity.io" crossorigin />
+    <link rel="preconnect" href="https://cdn.sanity.io" />
+    <link rel="dns-prefetch" href="https://8j6w8ohu.apicdn.sanity.io" />
+    <link rel="dns-prefetch" href="https://cdn.sanity.io" />
+
+    <!-- Fonts: linked here (not via a CSS @import chain) with display=swap. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;900&family=Inter:wght@300;400;500;600&display=swap"
+    />
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+    <div id="root"></div>    <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

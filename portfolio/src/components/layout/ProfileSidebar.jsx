@@ -1,8 +1,15 @@
 import { motion } from 'framer-motion'
 import portfolioImage from './portfolio_image.jpg'
-import { settings } from '../../data/settings'
+import { useSettings } from '../../hooks/useSettings'
+import { getOptimizedImageUrl } from '../../lib/sanity'
 
 export default function ProfileSidebar() {
+  const settings = useSettings()
+  // Studio avatar (siteSettings.avatar) when set, else the bundled photo.
+  const avatarSrc = settings.avatar?.asset
+    ? getOptimizedImageUrl(settings.avatar, { width: 700, height: 1000 })
+    : portfolioImage
+  const avatarAlt = settings.avatar?.alt || settings.name
   return (
     <div className="bg-white rounded-[24px] sm:rounded-[32px] p-5 sm:p-7 lg:p-9 flex flex-col items-center text-center shadow-[0_4px_20px_rgb(0,0,0,0.06)] relative overflow-hidden isolate border border-black/5">
       
@@ -42,25 +49,25 @@ export default function ProfileSidebar() {
         className="relative z-10 w-full h-60 sm:h-72 mb-4 sm:mb-5 rounded-[20px] sm:rounded-[24px] overflow-hidden bg-accent-orange"
       >
         <img
-          src={portfolioImage}
-          alt="Pratik Gond"
+          src={avatarSrc}
+          alt={avatarAlt}
           width="550"
           height="790"
-          fetchPriority="high"
+          fetchpriority="high"
           decoding="async"
           className="w-full h-full object-cover mix-blend-multiply grayscale contrast-125"
         />
       </motion.div>
 
       {/* Name */}
-      <motion.h1 
+      <motion.p 
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.15 }}
         className="font-poppins font-bold text-2xl sm:text-[28px] leading-[1.1] tracking-tight text-black mb-2 relative z-10"
       >
         {settings.name}
-      </motion.h1>
+      </motion.p>
 
       {/* Small orange flame/icon badge */}
       <motion.div 

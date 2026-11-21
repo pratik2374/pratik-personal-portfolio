@@ -1,37 +1,120 @@
 import { NavLink, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useEffect } from 'react'
+import { preloadRoute } from '../../routes'
+import { useSettings } from '../../hooks/useSettings'
 
+// `section` is the matching section id on the home page (for scroll-spy).
 const NAV = [
-  { to: '/',           label: 'Home',       Icon: HomeIcon },
-  { to: '/projects',   label: 'Projects',   Icon: FolderIcon },
-  { to: '/experience', label: 'Experience', Icon: BriefcaseIcon },
-  { to: '/tools',      label: 'Tools',      Icon: WrenchIcon },
-  { to: '/blog',       label: 'Thoughts',   Icon: PencilIcon },
+  { to: '/',           section: 'home',       label: 'Home',       Icon: HomeIcon },
+  { to: '/projects',   section: 'projects',   label: 'Projects',   Icon: FolderIcon },
+  { to: '/experience', section: 'experience', label: 'Experience', Icon: BriefcaseIcon },
+  { to: '/tools',      section: 'tools',      label: 'Tools',      Icon: WrenchIcon },
+  { external: true,    section: 'blog',       label: 'Blog',       Icon: PencilIcon }, // href = settings.blogUrl
 ]
+
+/**
+ * In-app items render a NavLink that preloads its page on intent; the blog
+ * item is a plain link to the separate blog site.
+ */
+function NavTarget({ item, isActive, className, children }) {
+  if (item.external) {
+    return (
+      <a href={item.href} aria-label={item.label} className={className}>
+        {children}
+      </a>
+    )
+  }
+  const warm = () => preloadRoute(item.to)
+  return (
+    <NavLink
+      to={item.to}
+      end={item.to === '/'}
+      aria-label={item.label}
+      aria-current={isActive ? 'page' : undefined}
+      onMouseEnter={warm}
+      onFocus={warm}
+      onTouchStart={warm}
+      onClick={(e) => {
+        if (isActive) {
+          e.preventDefault()
+          window.scrollTo({ top: 0, behavior: 'smooth' })
+        }
+      }}
+      className={className}
+    >
+      {children}
+    </NavLink>
+  )
+}
 
 // Transitions
 const SNAP = { duration: 0.18, ease: [0.55, 0, 1, 0.45] }
 const EXPAND = { type: 'spring', stiffness: 520, damping: 32, mass: 0.7 }
 const ITEM_S = { type: 'spring', stiffness: 420, damping: 30 }
+const DOCK_IN = { type: 'spring', stiffness: 460, damping: 34 }
 
 const PILL_BG   = 'rgba(15, 13, 12, 0.95)'
 const PILL_RING = '0 0 0 1px rgba(255,255,255,0.08)'
 
+// Below 768px there's no room for a top bar: always the bottom dock.
+const PHONE_QUERY = '(max-width: 767.98px)'
+// The left rail needs a real gutter beside the 1152px content column
+// (20px offset + 74px rail + breathing room). On narrower screens the rail
+// would sit on top of the profile card, so those use the bottom dock instead.
+const RAIL_QUERY = '(min-width: 1320px)'
+
+function useMediaQuery(query) {
+  const get = () => typeof window !== 'undefined' && Boolean(window.matchMedia?.(query).matches)
+  const [matches, setMatches] = useState(get)
+  useEffect(() => {
+    const mql = window.matchMedia?.(query)
+    if (!mql) return
+    const onChange = () => setMatches(mql.matches)
+    onChange()
+    mql.addEventListener?.('change', onChange)
+    return () => mql.removeEventListener?.('change', onChange)
+  }, [query])
+  return matches
+}
+
+function Tooltip({ side, label }) {
+  const below = side === 'below'
+  return (
+    <motion.span
+      aria-hidden="true"
+      initial={below ? { opacity: 0, y: 7, scale: 0.84 } : { opacity: 0, x: -10, scale: 0.84 }}
+      animate={below ? { opacity: 1, y: 0, scale: 1 } : { opacity: 1, x: 0, scale: 1 }}
+      exit={below ? { opacity: 0, y: 5, scale: 0.88 } : { opacity: 0, x: -7, scale: 0.88 }}
+      transition={{ duration: 0.15, ease: [0, 0, 0.2, 1] }}
+      className={`absolute ${below ? 'top-full mt-4 left-1/2 -translate-x-1/2' : 'left-full top-1/2 -translate-y-1/2 ml-4'}
+        bg-[#1b1918] border border-white/[0.07]
+        text-white text-[10px] uppercase tracking-[0.14em] font-semibold
+        px-3 py-1.5 rounded-xl font-poppins pointer-events-none whitespace-nowrap`}
+    >
+      <span
+        aria-hidden
+        style={
+          below
+            ? { position: 'absolute', bottom: '100%', left: '50%', transform: 'translateX(-50%)', width: 0, height: 0, borderLeft: '5px solid transparent', borderRight: '5px solid transparent', borderBottom: '5px solid #1b1918' }
+            : { position: 'absolute', right: '100%', top: '50%', transform: 'translateY(-50%)', width: 0, height: 0, borderTop: '5px solid transparent', borderBottom: '5px solid transparent', borderRight: '5px solid #1b1918' }
+        }
+      />
+      {label}
+    </motion.span>
+  )
+}
+
 export default function FloatingNav() {
-  const location  = useLocation()
+  const location = useLocation()
+  const { blogUrl } = useSettings()
   const [hovered, setHovered] = useState(null)
   const [scrolled, setScrolled] = useState(false)
   const [visibleSection, setVisibleSection] = useState(null)
-  const [isMobile, setIsMobile] = useState(false)
+  const phone = useMediaQuery(PHONE_QUERY)
+  const wide = useMediaQuery(RAIL_QUERY)
 
-  // Responsive check
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768)
-    checkMobile()
-    window.addEventListener('resize', checkMobile, { passive: true })
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
+  const items = NAV.map((item) => (item.external ? { ...item, href: blogUrl } : item))
 
   // Scroll detection
   useEffect(() => {
@@ -65,75 +148,76 @@ export default function FloatingNav() {
     return () => window.removeEventListener('scroll', update)
   }, [location.pathname])
 
-  const active = (to) => {
-    if (visibleSection) {
-      const id = to === '/' ? 'home' : to.slice(1)
-      return visibleSection === id
-    }
-    return to === '/' ? location.pathname === '/' : location.pathname.startsWith(to)
+  const active = (item) => {
+    if (visibleSection) return visibleSection === item.section
+    if (!item.to) return false
+    return item.to === '/' ? location.pathname === '/' : location.pathname.startsWith(item.to)
   }
 
-  // ── MOBILE: Thumb-friendly floating bottom dock ──────────────────────────
-  if (isMobile) {
-    return (
-      <nav
-        aria-label="Mobile Navigation"
-        style={{
-          position: 'fixed',
-          bottom: 20,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          zIndex: 50,
-          background: PILL_BG,
-          boxShadow: '0 10px 30px -5px rgba(0,0,0,0.8), ' + PILL_RING,
-        }}
-        className="flex flex-row items-center gap-2 px-4 py-2
-          backdrop-blur-2xl rounded-full
-          border border-white/10"
-      >
-        {NAV.map(({ to, label, Icon }) => {
-          const isActive = active(to)
-          return (
-            <NavLink
-              key={to}
-              to={to}
-              end={to === '/'}
-              aria-label={label}
-              onClick={(e) => {
-                if (isActive) {
-                  e.preventDefault()
-                  window.scrollTo({ top: 0, behavior: 'smooth' })
-                }
-              }}
-              className={`relative flex flex-col items-center justify-center w-12 h-12 rounded-full
-                transition-[transform,background-color,color] duration-150 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.88]
-                ${isActive ? 'text-accent-orange bg-accent-orange/10' : 'text-[#888888] hover:text-white'}`}
-            >
-              <span className="w-5 h-5 block pointer-events-none">
-                <Icon />
-              </span>
-              {isActive && (
-                <span className="absolute bottom-1.5 w-1 h-1 rounded-full bg-accent-orange" />
-              )}
-            </NavLink>
-          )
-        })}
-      </nav>
-    )
-  }
+  // Tooltips follow both the pointer and keyboard focus.
+  const tipProps = (i) => ({
+    onMouseEnter: () => setHovered(i),
+    onMouseLeave: () => setHovered(null),
+    onFocus: () => setHovered(i),
+    onBlur: () => setHovered(null),
+  })
 
-  // ── DESKTOP: Dynamic top pill -> left side vertical dock ──────────────────
+  const mode = phone ? 'dock' : !scrolled ? 'top' : wide ? 'rail' : 'dock'
+
   return (
     <AnimatePresence mode="wait" initial={false}>
-      {!scrolled ? (
-        /* ── HORIZONTAL (top) ─────────────────────────────────── */
+      {mode === 'dock' && (
+        /* ── DOCK (bottom, thumb-friendly): phones always; tablets once scrolled ── */
+        <motion.nav
+          key="dock"
+          aria-label="Main"
+          initial={phone ? false : { y: 24, opacity: 0 }}
+          animate={{ y: 0, opacity: 1, transition: DOCK_IN }}
+          exit={{ y: 24, opacity: 0, transition: SNAP }}
+          style={{
+            position: 'fixed',
+            bottom: 'calc(20px + env(safe-area-inset-bottom))',
+            left: '50%',
+            x: '-50%',
+            zIndex: 50,
+            background: PILL_BG,
+            boxShadow: '0 10px 30px -5px rgba(0,0,0,0.8), ' + PILL_RING,
+          }}
+          className="flex flex-row items-center gap-1.5 px-3 py-2 min-[380px]:gap-2 min-[380px]:px-4
+            backdrop-blur-2xl rounded-full border border-white/10"
+        >
+          {items.map((item) => {
+            const { label, Icon } = item
+            const isActive = active(item)
+            return (
+              <NavTarget
+                key={label}
+                item={item}
+                isActive={isActive}
+                className={`relative flex flex-col items-center justify-center w-12 h-12 rounded-full
+                  transition-[transform,background-color,color] duration-150 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.88]
+                  focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-orange
+                  ${isActive ? 'text-accent-orange bg-accent-orange/10' : 'text-[#888888] hover:text-white'}`}
+              >
+                <span className="w-5 h-5 block pointer-events-none">
+                  <Icon />
+                </span>
+                {isActive && (
+                  <span className="absolute bottom-1.5 w-1 h-1 rounded-full bg-accent-orange pointer-events-none" />
+                )}
+              </NavTarget>
+            )
+          })}
+        </motion.nav>
+      )}
+
+      {mode === 'top' && (
+        /* ── HORIZONTAL (top of page, 768px+) ─────────────────────────────── */
         <motion.nav
           key="h"
+          aria-label="Main"
           initial={{ scaleY: 0, opacity: 0 }}
-          animate={{
-            scaleY: 1, opacity: 1,
-            transition: { ...EXPAND, delay: 0.04 },
-          }}
+          animate={{ scaleY: 1, opacity: 1, transition: { ...EXPAND, delay: 0.04 } }}
           exit={{ scaleY: 0, opacity: 0, transition: SNAP }}
           style={{
             position: 'fixed',
@@ -145,72 +229,38 @@ export default function FloatingNav() {
             background: PILL_BG,
             boxShadow: PILL_RING,
           }}
-          className="flex flex-row items-center gap-5 px-7 py-3.5
-            backdrop-blur-2xl rounded-2xl
-            border border-white/[0.055]"
+          className="flex flex-row items-center gap-4 px-6 py-3 backdrop-blur-2xl rounded-2xl border border-white/[0.055]"
         >
-          {NAV.map(({ to, label, Icon }, i) => (
+          {items.map((item, i) => (
             <motion.div
-              key={to}
+              key={item.label}
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0, transition: { ...ITEM_S, delay: 0.1 + i * 0.05 } }}
               className="relative flex items-center justify-center"
-              onMouseEnter={() => setHovered(i)}
-              onMouseLeave={() => setHovered(null)}
+              {...tipProps(i)}
             >
-              <NavLink
-                to={to} end={to === '/'}
-                aria-label={label}
-                onClick={(e) => {
-                  if (active(to)) {
-                    e.preventDefault()
-                    window.scrollTo({ top: 0, behavior: 'smooth' })
-                  }
-                }}
-                className={`flex items-center justify-center w-10 h-10 rounded-xl
-                  transition-colors duration-150 active:scale-95
-                  ${active(to) ? 'text-accent-orange' : 'text-[#6e6666] hover:text-white'}`}
+              <NavTarget
+                item={item}
+                isActive={active(item)}
+                className={`flex items-center justify-center w-11 h-11 rounded-xl
+                  transition-[transform,color] duration-150 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-orange
+                  ${active(item) ? 'text-accent-orange' : 'text-[#6e6666] hover:text-white'}`}
               >
-                <span className="w-5 h-5 block pointer-events-none"><Icon /></span>
-              </NavLink>
-
-              {/* Tooltip — below */}
-              <AnimatePresence>
-                {hovered === i && (
-                  <motion.span
-                    initial={{ opacity: 0, y: 7, scale: 0.84 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 5, scale: 0.88 }}
-                    transition={{ duration: 0.13, ease: [0, 0, 0.2, 1] }}
-                    className="absolute top-full mt-4 left-1/2 -translate-x-1/2
-                      bg-[#1b1918] border border-white/[0.07]
-                      text-white text-[10px] uppercase tracking-[0.14em] font-semibold
-                      px-3 py-1.5 rounded-xl font-poppins pointer-events-none whitespace-nowrap
-                      shadow-none"
-                  >
-                    <span aria-hidden style={{
-                      position:'absolute', bottom:'100%', left:'50%', transform:'translateX(-50%)',
-                      width:0, height:0,
-                      borderLeft:'5px solid transparent',
-                      borderRight:'5px solid transparent',
-                      borderBottom:'5px solid #1b1918',
-                    }} />
-                    {label}
-                  </motion.span>
-                )}
-              </AnimatePresence>
+                <span className="w-5 h-5 block pointer-events-none"><item.Icon /></span>
+              </NavTarget>
+              <AnimatePresence>{hovered === i && <Tooltip side="below" label={item.label} />}</AnimatePresence>
             </motion.div>
           ))}
         </motion.nav>
-      ) : (
-        /* ── VERTICAL (left) ──────────────────────────────────── */
+      )}
+
+      {mode === 'rail' && (
+        /* ── VERTICAL (left rail, 1320px+ only) ───────────────────────────── */
         <motion.nav
           key="v"
+          aria-label="Main"
           initial={{ scaleX: 0, opacity: 0 }}
-          animate={{
-            scaleX: 1, opacity: 1,
-            transition: { ...EXPAND, delay: 0.04 },
-          }}
+          animate={{ scaleX: 1, opacity: 1, transition: { ...EXPAND, delay: 0.04 } }}
           exit={{ scaleX: 0, opacity: 0, transition: SNAP }}
           style={{
             position: 'fixed',
@@ -222,67 +272,28 @@ export default function FloatingNav() {
             background: PILL_BG,
             boxShadow: PILL_RING,
           }}
-          className="flex flex-col items-center gap-2 p-3
-            backdrop-blur-2xl rounded-[26px]
-            border border-white/[0.055]"
+          className="flex flex-col items-center gap-2 p-3 backdrop-blur-2xl rounded-[26px] border border-white/[0.055]"
         >
-          {NAV.map(({ to, label, Icon }, i) => (
+          {items.map((item, i) => (
             <motion.div
-              key={to}
+              key={item.label}
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0, transition: { ...ITEM_S, delay: 0.1 + i * 0.055 } }}
               className="relative flex items-center justify-center"
-              onMouseEnter={() => setHovered(i)}
-              onMouseLeave={() => setHovered(null)}
+              {...tipProps(i)}
             >
-              <motion.div
-                className="flex items-center justify-center w-12 h-12 rounded-[18px]"
-                whileHover={{ scale: 1.11 }}
-                whileTap={{ scale: 0.89 }}
-                transition={{ type: 'spring', stiffness: 580, damping: 26 }}
+              <NavTarget
+                item={item}
+                isActive={active(item)}
+                className={`flex items-center justify-center w-12 h-12 rounded-[18px]
+                  transition-[transform,color,background-color] duration-150 ease-[cubic-bezier(0.32,0.72,0,1)]
+                  hover:scale-110 hover:bg-white/[0.04] active:scale-90
+                  focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-orange
+                  ${active(item) ? 'text-accent-orange' : 'text-[#6e6666] hover:text-white'}`}
               >
-                <NavLink
-                  to={to} end={to === '/'}
-                  aria-label={label}
-                  onClick={(e) => {
-                    if (active(to)) {
-                      e.preventDefault()
-                      window.scrollTo({ top: 0, behavior: 'smooth' })
-                    }
-                  }}
-                  className={`flex items-center justify-center w-12 h-12 rounded-[18px]
-                    transition-colors duration-150
-                    ${active(to) ? 'text-accent-orange' : 'text-[#6e6666] hover:text-white'}`}
-                >
-                  <span className="w-5 h-5 block pointer-events-none"><Icon /></span>
-                </NavLink>
-              </motion.div>
-
-              {/* Tooltip — right */}
-              <AnimatePresence>
-                {hovered === i && (
-                  <motion.span
-                    initial={{ opacity: 0, x: -10, scale: 0.84 }}
-                    animate={{ opacity: 1, x: 0, scale: 1 }}
-                    exit={{ opacity: 0, x: -7, scale: 0.88 }}
-                    transition={{ type: 'spring', stiffness: 480, damping: 30 }}
-                    className="absolute left-full top-1/2 -translate-y-1/2 ml-4
-                      bg-[#1b1918] border border-white/[0.07]
-                      text-white text-[10px] uppercase tracking-[0.14em] font-semibold
-                      px-3 py-1.5 rounded-xl font-poppins pointer-events-none whitespace-nowrap
-                      shadow-none"
-                  >
-                    <span aria-hidden style={{
-                      position:'absolute', right:'100%', top:'50%', transform:'translateY(-50%)',
-                      width:0, height:0,
-                      borderTop:'5px solid transparent',
-                      borderBottom:'5px solid transparent',
-                      borderRight:'5px solid #1b1918',
-                    }} />
-                    {label}
-                  </motion.span>
-                )}
-              </AnimatePresence>
+                <span className="w-5 h-5 block pointer-events-none"><item.Icon /></span>
+              </NavTarget>
+              <AnimatePresence>{hovered === i && <Tooltip side="right" label={item.label} />}</AnimatePresence>
             </motion.div>
           ))}
         </motion.nav>

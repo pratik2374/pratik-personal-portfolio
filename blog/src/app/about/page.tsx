@@ -1,23 +1,38 @@
 import { Metadata } from "next"
 import Link from "next/link"
-import Image from "next/image"
-import { ArrowRight, Code, Cpu, Server, Sparkles, Terminal, Award } from "lucide-react"
+import { ArrowRight, Cpu, Server, Terminal, Award } from "lucide-react"
+import { SITE_URL } from "@/lib/sanity"
+import { jsonLd } from "@/lib/seo"
+import { PERSON_ID } from "@/lib/profile"
 
 export const metadata: Metadata = {
-  title: "About Pratik Gond | Software & AI Engineer",
+  title: "About",
   description: "Learn about Pratik Gond, Software Engineer specializing in Artificial Intelligence, RAG toolchains, distributed systems, and web architecture.",
   alternates: {
-    canonical: "https://blog.pratikgond.tech/about",
+    canonical: "/about",
   },
+}
+
+// Google's ProfilePage type: tells search engines this page is about the site's author
+// (the Person entity itself is defined once, site-wide, in the root layout).
+const profilePageSchema = {
+  "@context": "https://schema.org",
+  "@type": "ProfilePage",
+  "@id": `${SITE_URL}/about#page`,
+  url: `${SITE_URL}/about`,
+  name: "About Pratik Gond",
+  isPartOf: { "@id": `${SITE_URL}/#website` },
+  mainEntity: { "@id": PERSON_ID },
 }
 
 export default function AboutPage() {
   return (
     <div className="container mx-auto px-4 py-16 max-w-4xl">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(profilePageSchema) }} />
       <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8" aria-label="Breadcrumb">
         <Link
           href="/"
-          className="inline-flex items-center gap-1 hover:text-orange-500 transition-colors min-h-[44px] py-2 active:scale-[0.98] duration-150"
+          className="inline-flex items-center gap-1 hover:text-orange-500 transition-colors min-h-[44px] min-w-[44px] py-2 active:scale-[0.98] duration-150"
         >
           Home
         </Link>
@@ -46,7 +61,7 @@ export default function AboutPage() {
             <Award className="w-6 h-6" />
           </div>
           <div>
-            <div className="text-2xl font-semibold text-gray-900 dark:text-white">12+ Years</div>
+            <div className="text-2xl font-semibold text-gray-900 dark:text-white">2 Years</div>
             <div className="text-xs text-gray-500 dark:text-gray-400">Engineering Experience</div>
           </div>
         </div>
@@ -82,7 +97,7 @@ export default function AboutPage() {
           responsiveness for users across the globe.
         </p>
         <p>
-          Throughout my 12+ years of software engineering journey, I have designed and deployed products ranging from high-concurrency
+          Over the past 2 years of software engineering, I have designed and deployed products ranging from high-concurrency
           web applications and reactive frontend dashboards to complex autonomous agent pipelines and vector search infrastructures.
         </p>
 

@@ -1,7 +1,7 @@
-"use client"
-
-import React, { useState } from "react"
-import { Table, Copy, Check } from "lucide-react"
+import type React from "react"
+import { Table } from "lucide-react"
+import { CopyButton } from "./CopyButton"
+import { HScroll } from "./HScroll"
 
 interface MarkdownTableProps {
   code: string
@@ -53,18 +53,6 @@ function parseMarkdownTable(raw: string): ParsedTable | null {
   if (headers.length === 0 || rows.length === 0) return null
 
   return { headers, alignments, rows }
-}
-
-export function isMarkdownTable(raw: string): boolean {
-  if (!raw || typeof raw !== "string") return false
-  const lines = raw
-    .trim()
-    .split("\n")
-    .map((l) => l.trim())
-    .filter(Boolean)
-  if (lines.length < 2) return false
-  if (!lines[0].includes("|")) return false
-  return /^\|?(\s*:?-+:?\s*\|)+\s*:?-+:?\s*\|?$/.test(lines[1])
 }
 
 // Inline formatting: **bold**, *italic*, `code`, and $math$
@@ -155,101 +143,89 @@ function renderCell(text: string, isFirstCol: boolean): React.ReactNode {
   return renderInlineText(text)
 }
 
+const ALIGN_CLASS = { left: "text-left", center: "text-center", right: "text-right" } as const
+
+/**
+ * Renders a markdown pipe table from a code block. Server component: only the copy
+ * button and the scroll-hint wrapper ship JavaScript.
+ *
+ * Layout notes:
+ * - `not-prose` stops the typography plugin's table rules (zero first-cell padding,
+ *   2em margins) from leaking in; that was what pushed the table flush-left with an
+ *   empty band above the header.
+ * - Backgrounds live on cells (not rows) so the sticky first column on narrow screens
+ *   stays opaque and matches its row.
+ */
 export function MarkdownTable({ code }: MarkdownTableProps) {
-  const [copied, setCopied] = useState(false)
   const parsed = parseMarkdownTable(code)
-
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(code)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    } catch (err) {
-      console.error("Failed to copy table: ", err)
-    }
-  }
-
   if (!parsed) return null
 
-  return (
-    <div className="my-8 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#121213] shadow-md group">
-      {/* Sleek compact header bar */}
-      <div className="flex items-center justify-between px-4 py-1.5 bg-gray-100/90 dark:bg-[#1b1b1c] border-b border-gray-200 dark:border-gray-800 text-xs font-mono h-8">
-        <div className="flex items-center gap-2 text-orange-500 dark:text-orange-400 font-semibold tracking-wider text-[11px] uppercase">
-          <Table className="w-3.5 h-3.5" />
-          <span>TABLE</span>
-        </div>
-        <button
-          onClick={handleCopy}
-          className="w-7 h-7 flex items-center justify-center rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200/60 dark:hover:bg-white/10 active:scale-90 transition-all duration-150 cursor-pointer"
-          title={copied ? "Copied!" : "Copy table markdown"}
-          aria-label={copied ? "Copied!" : "Copy table markdown"}
-        >
-          {copied ? (
-            <Check className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
-          ) : (
-            <Copy className="w-3.5 h-3.5" />
-          )}
-        </button>
-      </div>
+  const columnCount = parsed.headers.length
+  const lastRow = parsed.rows.length - 1
 
-      {/* Styled Responsive Table */}
-      <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-800">
-        <table className="w-full min-w-[640px] text-left text-xs md:text-sm border-collapse">
+  return (
+    <figure className="not-prose my-8 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#121213] shadow-sm">
+      <figcaption className="flex items-center justify-between pl-4 pr-2 h-10 bg-gray-50 dark:bg-[#1b1b1c] border-b border-gray-200 dark:border-gray-800">
+        <span className="flex items-center gap-2 text-orange-500 dark:text-orange-400 font-mono font-semibold tracking-wider text-[11px] uppercase">
+          <Table className="w-3.5 h-3.5" aria-hidden="true" />
+          Table
+        </span>
+        <CopyButton text={code} label="Copy table as Markdown" tone="auto" />
+      </figcaption>
+
+      <HScroll label="Table, scroll sideways to see more columns">
+        <table className="w-full border-separate border-spacing-0 text-left text-[13px] md:text-sm">
           <thead>
-            <tr className="bg-gray-50/90 dark:bg-[#161618] border-b-2 border-gray-200 dark:border-gray-800">
-              {parsed.headers.map((header, idx) => {
-                const align = parsed.alignments[idx] || "left"
-                return (
-                  <th
-                    key={idx}
-                    className={`px-4 py-3.5 font-bold text-gray-900 dark:text-gray-200 text-[11px] md:text-xs uppercase tracking-wider border-r border-gray-200/60 dark:border-gray-800/60 last:border-r-0 align-bottom ${
-                      align === "center"
-                        ? "text-center"
-                        : align === "right"
-                        ? "text-right"
-                        : "text-left"
-                    } ${idx === 0 ? "bg-gray-100/50 dark:bg-white/[0.02]" : ""}`}
-                  >
-                    {renderInlineText(header)}
-                  </th>
-                )
-              })}
+            <tr>
+              {parsed.headers.map((header, idx) => (
+                <th
+                  key={idx}
+                  scope="col"
+                  className={`px-4 py-3 align-bottom font-semibold text-[11px] md:text-xs uppercase tracking-wider text-gray-600 dark:text-gray-300 bg-gray-50/80 dark:bg-[#17171a] border-b border-gray-200 dark:border-gray-800 ${
+                    ALIGN_CLASS[parsed.alignments[idx] || "left"]
+                  } ${idx < columnCount - 1 ? "border-r border-r-gray-100 dark:border-r-gray-800/60" : ""} ${
+                    idx === 0 ? "max-md:sticky max-md:left-0 max-md:z-10 max-md:bg-gray-50 max-md:dark:bg-[#17171a]" : "min-w-[10rem] md:min-w-[8rem]"
+                  }`}
+                >
+                  {renderInlineText(header)}
+                </th>
+              ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100 dark:divide-gray-800/60">
-            {parsed.rows.map((row, rowIdx) => (
-              <tr
-                key={rowIdx}
-                className="even:bg-gray-50/40 dark:even:bg-white/[0.015] hover:bg-orange-500/[0.04] dark:hover:bg-orange-500/[0.03] transition-colors"
-              >
-                {row.map((cell, colIdx) => {
-                  const align = parsed.alignments[colIdx] || "left"
-                  const isFirstCol = colIdx === 0
-                  return (
-                    <td
-                      key={colIdx}
-                      className={`px-4 py-3.5 leading-relaxed border-r border-gray-100 dark:border-gray-800/40 last:border-r-0 align-top ${
-                        isFirstCol
-                          ? "font-medium text-gray-900 dark:text-white whitespace-nowrap bg-gray-50/30 dark:bg-white/[0.01]"
-                          : "text-gray-700 dark:text-gray-300 text-xs md:text-sm"
-                      } ${
-                        align === "center"
-                          ? "text-center"
-                          : align === "right"
-                          ? "text-right"
-                          : "text-left"
-                      }`}
-                    >
-                      {renderCell(cell, isFirstCol)}
-                    </td>
-                  )
-                })}
-              </tr>
-            ))}
+          <tbody>
+            {parsed.rows.map((row, rowIdx) => {
+              const zebra = rowIdx % 2 === 1
+              const rowBg = zebra ? "bg-gray-50/70 dark:bg-[#151517]" : "bg-white dark:bg-[#121213]"
+              return (
+                <tr key={rowIdx} className="group/row">
+                  {Array.from({ length: columnCount }, (_, colIdx) => {
+                    const cell = row[colIdx] ?? ""
+                    const isFirstCol = colIdx === 0
+                    const CellTag = isFirstCol ? "th" : "td"
+                    return (
+                      <CellTag
+                        key={colIdx}
+                        scope={isFirstCol ? "row" : undefined}
+                        className={`px-4 py-3 align-top leading-relaxed transition-colors duration-150 ${rowBg} group-hover/row:bg-orange-50 dark:group-hover/row:bg-[#1a1613] ${
+                          rowIdx < lastRow ? "border-b border-gray-100 dark:border-gray-800/60" : ""
+                        } ${colIdx < columnCount - 1 ? "border-r border-r-gray-100 dark:border-r-gray-800/40" : ""} ${
+                          ALIGN_CLASS[parsed.alignments[colIdx] || "left"]
+                        } ${
+                          isFirstCol
+                            ? "font-semibold text-gray-900 dark:text-white min-w-[8.5rem] max-md:max-w-[10rem] md:whitespace-nowrap max-md:sticky max-md:left-0 max-md:z-10 max-md:shadow-[1px_0_0_0_rgb(229_231_235)] max-md:dark:shadow-[1px_0_0_0_rgb(31_41_55)]"
+                            : "text-gray-700 dark:text-gray-300 min-w-[10rem] md:min-w-[8rem]"
+                        }`}
+                      >
+                        {renderCell(cell, isFirstCol)}
+                      </CellTag>
+                    )
+                  })}
+                </tr>
+              )
+            })}
           </tbody>
         </table>
-      </div>
-    </div>
+      </HScroll>
+    </figure>
   )
 }

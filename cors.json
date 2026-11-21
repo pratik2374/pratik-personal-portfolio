@@ -1,8 +1,14 @@
 [
   {
-    "origin": ["*"],
-    "method": ["GET", "POST", "PUT", "DELETE", "HEAD"],
+    "origin": [
+      "https://pratikgond.tech",
+      "https://www.pratikgond.tech",
+      "https://blog.pratikgond.tech",
+      "http://localhost:5173",
+      "http://localhost:3000"
+    ],
+    "method": ["GET", "HEAD"],
     "maxAgeSeconds": 3600,
-    "responseHeader": ["Content-Type", "Content-Disposition", "Authorization"]
+    "responseHeader": ["Content-Type", "Content-Disposition"]
   }
 ]

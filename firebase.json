@@ -4,12 +4,16 @@
       "target": "portfolio",
       "public": "portfolio/dist",
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
-      "rewrites": [{ "source": "**", "destination": "/index.html" }]
-    },
-    {
-      "target": "cms",
-      "public": "cms/dist",
-      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+      "redirects": [
+        { "source": "/blog", "destination": "https://blog.pratikgond.tech", "type": 301 },
+        { "source": "/blog/:slug", "destination": "https://blog.pratikgond.tech/blog/:slug", "type": 301 }
+      ],
+      "headers": [
+        {
+          "source": "/assets/**",
+          "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+        }
+      ],
       "rewrites": [{ "source": "**", "destination": "/index.html" }]
     }
   ],

@@ -4,13 +4,20 @@ import * as React from "react"
 import { Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
 
+const subscribeNoop = () => () => {}
+
+type ViewTransitionDocument = Document & {
+  startViewTransition: (cb: () => Promise<void>) => { ready: Promise<void>; finished: Promise<void> }
+}
+
 export function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme()
-  const [mounted, setMounted] = React.useState(false)
-
-  React.useEffect(() => {
-    setMounted(true)
-  }, [])
+  // false during SSR and hydration, true afterwards: the theme is only known on the client.
+  const mounted = React.useSyncExternalStore(
+    subscribeNoop,
+    () => true,
+    () => false
+  )
 
   const toggleTheme = (e: React.MouseEvent<HTMLButtonElement>) => {
     const isDark = resolvedTheme === "dark"
@@ -30,7 +37,10 @@ export function ThemeToggle() {
         Math.max(y, window.innerHeight - y)
       )
 
-      const transition = (document as any).startViewTransition(async () => {
+      // Scopes the circular-reveal CSS to this transition so page navigations keep their crossfade.
+      const root = document.documentElement
+      root.classList.add("theme-transition")
+      const transition = (document as ViewTransitionDocument).startViewTransition(async () => {
         setTheme(nextTheme)
         // Allow microtask tick for next-themes to apply the class to <html>
         await new Promise((resolve) => setTimeout(resolve, 1))
@@ -51,6 +61,7 @@ export function ThemeToggle() {
           }
         )
       })
+      transition.finished.finally(() => root.classList.remove("theme-transition"))
     } else {
       setTheme(nextTheme)
     }

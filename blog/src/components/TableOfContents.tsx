@@ -1,12 +1,43 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useLayoutEffect, useRef, type RefObject } from "react"
 import { ListCollapse, ChevronDown } from "lucide-react"
 
-export interface TocHeading {
-  id: string
-  text: string
-  level: number
+import type { TocHeading } from "@/lib/headings"
+
+export type { TocHeading }
+
+/**
+ * Moves a single indicator bar to the active item with a transform, so the highlight
+ * glides between headings instead of jumping.
+ */
+function useSlidingIndicator(
+  listRef: RefObject<HTMLUListElement | null>,
+  indicatorRef: RefObject<HTMLSpanElement | null>,
+  activeId: string,
+  enabled: boolean
+) {
+  useLayoutEffect(() => {
+    if (!enabled) return
+    const list = listRef.current
+    const bar = indicatorRef.current
+    if (!list || !bar) return
+
+    const place = () => {
+      const item = list.querySelector<HTMLElement>(`[data-toc-id="${CSS.escape(activeId)}"]`)
+      if (!item) {
+        bar.style.opacity = "0"
+        return
+      }
+      bar.style.opacity = "1"
+      bar.style.height = `${item.offsetHeight}px`
+      bar.style.transform = `translateY(${item.offsetTop}px)`
+    }
+    place()
+    const ro = new ResizeObserver(place)
+    ro.observe(list)
+    return () => ro.disconnect()
+  }, [listRef, indicatorRef, activeId, enabled])
 }
 
 interface TableOfContentsProps {
@@ -20,6 +51,8 @@ export function TableOfContents({ headings, variant = "desktop" }: TableOfConten
   const [isHovered, setIsHovered] = useState(false)
 
   const containerRef = useRef<HTMLElement | null>(null)
+  const listRef = useRef<HTMLUListElement | null>(null)
+  const indicatorRef = useRef<HTMLSpanElement | null>(null)
   const itemRefs = useRef<Record<string, HTMLElement | null>>({})
   const isClickScrollingRef = useRef(false)
 
@@ -27,13 +60,13 @@ export function TableOfContents({ headings, variant = "desktop" }: TableOfConten
   useEffect(() => {
     if (headings.length === 0) return
 
-    // If URL has a direct anchor hash on mount, initialize to that
-    if (typeof window !== "undefined" && window.location.hash) {
-      const hashId = window.location.hash.replace(/^#/, "")
-      if (headings.some((h) => h.id === hashId)) {
-        setActiveId(hashId)
-      }
+    // Follow the URL hash: on load (deep link) and when an in-page anchor is followed.
+    const syncFromHash = () => {
+      const hashId = decodeURIComponent(window.location.hash.replace(/^#/, ""))
+      if (hashId && headings.some((h) => h.id === hashId)) setActiveId(hashId)
     }
+    const hashRaf = requestAnimationFrame(syncFromHash)
+    window.addEventListener("hashchange", syncFromHash)
 
     let rafId: number | null = null
 
@@ -88,6 +121,8 @@ export function TableOfContents({ headings, variant = "desktop" }: TableOfConten
     window.addEventListener("scroll", handleScroll, { passive: true })
     return () => {
       window.removeEventListener("scroll", handleScroll)
+      window.removeEventListener("hashchange", syncFromHash)
+      cancelAnimationFrame(hashRaf)
       if (rafId !== null) cancelAnimationFrame(rafId)
     }
   }, [headings])
@@ -115,6 +150,8 @@ export function TableOfContents({ headings, variant = "desktop" }: TableOfConten
       })
     }
   }, [activeId, variant, isHovered])
+
+  useSlidingIndicator(listRef, indicatorRef, activeId, variant === "desktop" || isOpen)
 
   if (!headings || headings.length === 0) return null
 
@@ -166,6 +203,7 @@ export function TableOfContents({ headings, variant = "desktop" }: TableOfConten
       <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/80 dark:bg-[#141414] overflow-hidden transition-colors">
         <button
           onClick={() => setIsOpen(!isOpen)}
+          aria-controls="toc-mobile-list"
           className="w-full min-h-[44px] px-4 py-2.5 flex items-center justify-between text-left text-sm font-medium text-gray-900 dark:text-white active:scale-[0.99] transition-transform cursor-pointer"
           aria-expanded={isOpen}
         >
@@ -183,33 +221,45 @@ export function TableOfContents({ headings, variant = "desktop" }: TableOfConten
           />
         </button>
 
-        {isOpen && (
-          <div className="px-4 pb-4 pt-2 border-t border-gray-200 dark:border-gray-800 animate-in fade-in duration-200">
-            <ul className="space-y-1 border-l border-gray-200 dark:border-gray-800 pl-3 max-h-80 overflow-y-auto">
-              {headings.map((h) => {
-                const isActive = activeId === h.id
-                return (
-                  <li
-                    key={h.id}
-                    className={h.level === 3 ? "ml-3 text-xs" : "text-sm"}
-                  >
-                    <a
-                      href={`#${h.id}`}
-                      onClick={(e) => handleMobileClick(e, h.id)}
-                      className={`block py-1.5 transition-colors duration-150 active:scale-[0.98] ${
-                        isActive
-                          ? "font-medium text-orange-500 dark:text-orange-400"
-                          : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-                      }`}
-                    >
-                      {h.text}
-                    </a>
-                  </li>
-                )
-              })}
-            </ul>
+        {/* grid-rows 0fr -> 1fr animates the height open/closed without measuring */}
+        <div
+          id="toc-mobile-list"
+          className={`grid transition-[grid-template-rows] duration-250 ease-out motion-reduce:transition-none ${
+            isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+          }`}
+          inert={!isOpen}
+        >
+          <div className="overflow-hidden">
+            <div className="px-4 pb-4 pt-2 border-t border-gray-200 dark:border-gray-800">
+              <ul ref={listRef} className="relative border-l border-gray-200 dark:border-gray-800 pl-3 max-h-80 overflow-y-auto overscroll-contain">
+                <span
+                  ref={indicatorRef}
+                  aria-hidden="true"
+                  className="absolute -left-px top-0 w-[2px] rounded-full bg-orange-500 opacity-0 transition-[transform,height,opacity] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none"
+                />
+                {headings.map((h) => {
+                  const isActive = activeId === h.id
+                  return (
+                    <li key={h.id} data-toc-id={h.id} className={h.level === 3 ? "ml-3 text-[13px]" : "text-sm"}>
+                      <a
+                        href={`#${h.id}`}
+                        onClick={(e) => handleMobileClick(e, h.id)}
+                        aria-current={isActive ? "location" : undefined}
+                        className={`flex items-center min-h-[40px] py-1.5 leading-snug transition-colors duration-150 ${
+                          isActive
+                            ? "font-medium text-orange-500 dark:text-orange-400"
+                            : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                        }`}
+                      >
+                        {h.text}
+                      </a>
+                    </li>
+                  )
+                })}
+              </ul>
+            </div>
           </div>
-        )}
+        </div>
       </div>
     )
   }
@@ -227,12 +277,18 @@ export function TableOfContents({ headings, variant = "desktop" }: TableOfConten
         <ListCollapse className="w-4 h-4 text-orange-500 shrink-0" />
         <span>Table of Contents</span>
       </div>
-      <ul className="space-y-1.5 border-l border-gray-200 dark:border-gray-800 pl-3">
+      <ul ref={listRef} className="relative space-y-1.5 border-l border-gray-200 dark:border-gray-800 pl-3">
+        <span
+                  ref={indicatorRef}
+                  aria-hidden="true"
+                  className="absolute -left-px top-0 w-[2px] rounded-full bg-orange-500 opacity-0 transition-[transform,height,opacity] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none"
+                />
         {headings.map((h) => {
           const isActive = activeId === h.id
           return (
             <li
               key={h.id}
+              data-toc-id={h.id}
               ref={(el) => {
                 itemRefs.current[h.id] = el
               }}
@@ -243,13 +299,10 @@ export function TableOfContents({ headings, variant = "desktop" }: TableOfConten
               <a
                 href={`#${h.id}`}
                 onClick={(e) => handleHeadingClick(e, h.id)}
-                className={`block py-1 leading-snug transition-colors duration-150 ${
+                aria-current={isActive ? "location" : undefined}
+                className={`block py-1 leading-snug transition-colors duration-200 ${
                   isActive
-                    ? `font-medium text-orange-500 dark:text-orange-400 ${
-                        h.level === 3
-                          ? "before:absolute before:-left-[25px] before:top-0 before:bottom-0 before:w-[2px] before:bg-orange-500 before:rounded-full"
-                          : "before:absolute before:-left-[13px] before:top-0 before:bottom-0 before:w-[2px] before:bg-orange-500 before:rounded-full"
-                      }`
+                    ? "font-medium text-orange-500 dark:text-orange-400"
                     : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                 }`}
               >

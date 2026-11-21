@@ -1,4 +1,14 @@
 {
+  "redirects": [
+    { "source": "/blog", "destination": "https://blog.pratikgond.tech", "permanent": true },
+    { "source": "/blog/:slug", "destination": "https://blog.pratikgond.tech/blog/:slug", "permanent": true }
+  ],
+  "headers": [
+    {
+      "source": "/assets/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+    }
+  ],
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ]

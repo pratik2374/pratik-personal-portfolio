@@ -1,4 +1,5 @@
 import { defineField, defineType } from 'sanity'
+import { altField } from './imageWithAlt'
 
 export const experience = defineType({
   name: 'experience',
@@ -52,6 +53,7 @@ export const experience = defineType({
       title: 'Company Logo / Badge',
       type: 'image',
       options: { hotspot: true },
+      fields: [altField],
     }),
     defineField({
       name: 'skills',
@@ -88,7 +90,7 @@ export const experience = defineType({
       name: 'gallery',
       title: 'Image Gallery',
       type: 'array',
-      of: [{ type: 'image', options: { hotspot: true } }],
+      of: [{ type: 'image', options: { hotspot: true }, fields: [altField] }],
     }),
   ],
   orderings: [
@@ -98,4 +100,14 @@ export const experience = defineType({
       by: [{ field: 'order', direction: 'asc' }],
     },
   ],
+  preview: {
+    select: { company: 'companyName', role: 'role', date: 'date', media: 'image' },
+    prepare({ company, role, date, media }) {
+      return {
+        title: company,
+        subtitle: [role, date].filter(Boolean).join(' · '),
+        media,
+      }
+    },
+  },
 })

@@ -1,65 +1,61 @@
-"use client"
-
-import { useState } from "react"
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
 import { atomDark } from "react-syntax-highlighter/dist/cjs/styles/prism"
-import { Check, Copy } from "lucide-react"
-import { MermaidDiagram, isMermaidCode } from "./MermaidDiagram"
-import { MarkdownTable, isMarkdownTable } from "./MarkdownTable"
+import { MermaidDiagram } from "./MermaidDiagram"
+import { MarkdownTable } from "./MarkdownTable"
+import { CopyButton } from "./CopyButton"
+import { isMarkdownTable, isMermaidCode } from "@/lib/code"
 
 interface CodeBlockProps {
   language?: string
   code: string
+  filename?: string
 }
 
-export function CodeBlock({ language, code }: CodeBlockProps) {
-  const [copied, setCopied] = useState(false)
+const LANGUAGE_LABELS: Record<string, string> = {
+  typescript: "TypeScript",
+  javascript: "JavaScript",
+  tsx: "TSX",
+  jsx: "JSX",
+  python: "Python",
+  bash: "Bash",
+  json: "JSON",
+  html: "HTML",
+  css: "CSS",
+  sql: "SQL",
+  go: "Go",
+  rust: "Rust",
+  java: "Java",
+  cpp: "C++",
+  yaml: "YAML",
+  markdown: "Markdown",
+  text: "Text",
+}
 
-  // 1. Mermaid Diagram rendering
+/**
+ * Server component: highlighting happens at render time, so readers download
+ * plain coloured HTML and only the tiny copy button ships as JavaScript.
+ */
+export function CodeBlock({ language, code, filename }: CodeBlockProps) {
   if (isMermaidCode(language, code)) {
     return <MermaidDiagram chart={code} />
   }
 
-  // 2. Markdown Table rendering
-  if ((language?.toLowerCase() === "markdown" || !language) && isMarkdownTable(code)) {
+  const lang = language?.toLowerCase()
+  if ((lang === "markdown" || !lang) && isMarkdownTable(code)) {
     return <MarkdownTable code={code} />
   }
 
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(code)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    } catch (err) {
-      console.error("Failed to copy code: ", err)
-    }
-  }
+  const label = filename || (lang ? LANGUAGE_LABELS[lang] || lang : "Code")
 
   return (
-    <div className="my-8 rounded-xl overflow-hidden border border-gray-800 bg-[#141414] text-sm shadow-md group">
-      {/* Sleek compact header bar */}
-      <div className="flex items-center justify-between px-3.5 py-1.5 bg-[#1e1e1e] border-b border-gray-800 text-xs font-mono h-8">
-        <span className="text-orange-400 font-medium uppercase tracking-wider text-[11px]">
-          {language || "code"}
-        </span>
-        <button
-          onClick={handleCopy}
-          className="w-7 h-7 flex items-center justify-center rounded-md text-gray-400 hover:text-white hover:bg-white/10 active:scale-90 transition-all duration-150 focus:outline-hidden cursor-pointer"
-          title={copied ? "Copied!" : "Copy code"}
-          aria-label={copied ? "Copied!" : "Copy code"}
-        >
-          {copied ? (
-            <Check className="w-3.5 h-3.5 text-emerald-400" />
-          ) : (
-            <Copy className="w-3.5 h-3.5" />
-          )}
-        </button>
+    <div className="not-prose my-8 rounded-2xl overflow-hidden border border-gray-800 bg-[#141414] text-sm shadow-sm">
+      <div className="flex items-center justify-between pl-4 pr-2 bg-[#1e1e1e] border-b border-gray-800 text-xs font-mono h-10">
+        <span className="text-orange-400 font-medium tracking-wider text-[11px] truncate">{label}</span>
+        <CopyButton text={code} label="Copy code" />
       </div>
-
-      {/* Syntax highlighted code body */}
-      <div className="overflow-x-auto text-[13px] md:text-sm">
+      <div className="overflow-x-auto overscroll-x-contain text-[13px] md:text-sm">
         <SyntaxHighlighter
-          language={language || "javascript"}
+          language={lang || "text"}
           style={atomDark}
           customStyle={{
             margin: 0,

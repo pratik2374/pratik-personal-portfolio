@@ -2,10 +2,10 @@ import { Metadata } from "next"
 import Link from "next/link"
 
 export const metadata: Metadata = {
-  title: "Cookie Policy | Pratik Gond",
+  title: "Cookie Policy",
   description: "Learn how cookies and local storage are utilized on Pratik Gond's Engineering Blog.",
   alternates: {
-    canonical: "https://blog.pratikgond.tech/cookies",
+    canonical: "/cookies",
   },
 }
 

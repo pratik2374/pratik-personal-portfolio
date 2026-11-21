@@ -2,10 +2,10 @@ import { Metadata } from "next"
 import Link from "next/link"
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | Pratik Gond",
+  title: "Privacy Policy",
   description: "Privacy Policy for Pratik Gond's Engineering Blog: understanding how your data is collected, handled, and protected.",
   alternates: {
-    canonical: "https://blog.pratikgond.tech/privacy",
+    canonical: "/privacy",
   },
 }
 
@@ -126,7 +126,7 @@ export default function PrivacyPage() {
           <p>Depending on your jurisdiction (e.g., GDPR in the EU/UK, CCPA/CPRA in California, DPDP Act in India), you possess the following rights:</p>
           <ul>
             <li><strong>Right of Access & Rectification:</strong> You may request a copy of any personal data we hold about you and request correction of inaccurate data.</li>
-            <li><strong>Right to Erasure ("Right to be Forgotten"):</strong> You may request deletion of your information from our records.</li>
+            <li><strong>Right to Erasure (&ldquo;Right to be Forgotten&rdquo;):</strong> You may request deletion of your information from our records.</li>
             <li><strong>Right to Restrict or Object to Processing:</strong> You may object to data processing conducted on legitimate interest grounds.</li>
             <li><strong>Right to Withdraw Consent:</strong> Where processing relies on consent (e.g., email subscriptions), you can withdraw consent at any time.</li>
             <li><strong>Non-Discrimination:</strong> We do not discriminate against any visitor for exercising their statutory privacy rights.</li>

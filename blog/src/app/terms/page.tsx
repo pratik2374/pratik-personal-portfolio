@@ -2,10 +2,10 @@ import { Metadata } from "next"
 import Link from "next/link"
 
 export const metadata: Metadata = {
-  title: "Terms of Service | Pratik Gond",
+  title: "Terms of Service",
   description: "Terms of Service and Conditions of Use for Pratik Gond's Engineering Blog.",
   alternates: {
-    canonical: "https://blog.pratikgond.tech/terms",
+    canonical: "/terms",
   },
 }
 

@@ -1,9 +1,11 @@
 "use client"
 
-import { useState, useMemo, useRef } from "react"
+import { useState, useMemo, useRef, useDeferredValue, ViewTransition } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { BlogPost, Category, urlFor } from "@/lib/sanity"
+import type { BlogPost, Category } from "@/lib/sanity"
+import { formatDate, readTimeOf, hasImageAsset } from "@/lib/format"
+import { SanityImage } from "./SanityImage"
 import { Search, X } from "lucide-react"
 
 interface BlogHomeViewProps {
@@ -14,22 +16,26 @@ interface BlogHomeViewProps {
 export function BlogHomeView({ categories, allPosts }: BlogHomeViewProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>("all")
   const [searchQuery, setSearchQuery] = useState<string>("")
+  // Typing stays instant; filtering the list happens at lower priority.
+  const deferredQuery = useDeferredValue(searchQuery)
   const articlesRef = useRef<HTMLDivElement>(null)
 
   // Filter posts based on category and search query
   const filteredPosts = useMemo(() => {
+    const q = deferredQuery.trim().toLowerCase()
     return allPosts.filter((post) => {
       const matchesCategory =
         selectedCategory === "all" || post.category?.slug === selectedCategory
 
       const matchesSearch =
-        searchQuery.trim() === "" ||
-        post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (post.summary && post.summary.toLowerCase().includes(searchQuery.toLowerCase()))
+        q === "" ||
+        post.title.toLowerCase().includes(q) ||
+        Boolean(post.summary?.toLowerCase().includes(q)) ||
+        Boolean(post.tags?.some((t) => t.toLowerCase().includes(q)))
 
       return matchesCategory && matchesSearch
     })
-  }, [allPosts, selectedCategory, searchQuery])
+  }, [allPosts, selectedCategory, deferredQuery])
 
   // Group posts by category for default "All" topic-wise display
   const topicSections = useMemo(() => {
@@ -42,6 +48,12 @@ export function BlogHomeView({ categories, allPosts }: BlogHomeViewProps) {
         }
       })
       .filter((section) => section.posts.length > 0)
+  }, [categories, allPosts])
+
+  // Posts without a category (or whose category was deleted) would otherwise never show in the default view.
+  const uncategorizedPosts = useMemo(() => {
+    const known = new Set(categories.map((c) => c.slug))
+    return allPosts.filter((p) => !p.category?.slug || !known.has(p.category.slug))
   }, [categories, allPosts])
 
   // PDF Test 3: Tap active tab scrolls to the top of the list
@@ -71,7 +83,7 @@ export function BlogHomeView({ categories, allPosts }: BlogHomeViewProps) {
           src="/cover.jpg"
           alt="Pratik Gond's Engineering Blog Cover"
           fill
-          priority
+          preload
           sizes="(max-width: 1200px) 100vw, 1024px"
           className="object-cover"
         />
@@ -82,11 +94,16 @@ export function BlogHomeView({ categories, allPosts }: BlogHomeViewProps) {
         ref={articlesRef}
         className="pt-2 pb-6 border-b border-gray-200 dark:border-gray-800 flex flex-col md:flex-row md:items-center justify-between gap-4 scroll-mt-24"
       >
-        {/* Wrapping Tabs: 44px min touch target, instant active scale reaction */}
-        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+        {/* Topic tabs: one swipeable row on phones (no 3-line wrap), wrapping row from md up */}
+        <div
+          role="group"
+          aria-label="Filter by topic"
+          className="-mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 flex flex-nowrap md:flex-wrap items-center gap-1.5 sm:gap-2 overflow-x-auto md:overflow-visible snap-x snap-mandatory scroll-px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
           <button
             onClick={() => handleCategorySelect("all")}
-            className={`min-h-[40px] px-3.5 py-1.5 rounded-lg text-sm transition-all duration-150 cursor-pointer shrink-0 active:scale-[0.96] flex items-center ${
+            aria-pressed={selectedCategory === "all"}
+            className={`min-h-[44px] px-3.5 py-1.5 rounded-lg text-sm whitespace-nowrap snap-start transition-[background-color,color,transform] duration-150 cursor-pointer shrink-0 active:scale-[0.96] flex items-center ${
               selectedCategory === "all"
                 ? "bg-gray-900 text-white dark:bg-white dark:text-gray-900 font-semibold"
                 : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800/60 font-medium"
@@ -101,7 +118,8 @@ export function BlogHomeView({ categories, allPosts }: BlogHomeViewProps) {
               <button
                 key={cat._id}
                 onClick={() => handleCategorySelect(cat.slug)}
-                className={`min-h-[40px] px-3.5 py-1.5 rounded-lg text-sm transition-all duration-150 cursor-pointer shrink-0 active:scale-[0.96] flex items-center ${
+                aria-pressed={isSelected}
+                className={`min-h-[44px] px-3.5 py-1.5 rounded-lg text-sm whitespace-nowrap snap-start transition-[background-color,color,transform] duration-150 cursor-pointer shrink-0 active:scale-[0.96] flex items-center ${
                   isSelected
                     ? "bg-gray-900 text-white dark:bg-white dark:text-gray-900 font-semibold"
                     : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800/60 font-medium"
@@ -117,16 +135,17 @@ export function BlogHomeView({ categories, allPosts }: BlogHomeViewProps) {
         <div className="relative w-full md:w-60 shrink-0">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
           <input
-            type="text"
+            type="search"
+            aria-label="Search articles"
             placeholder="Search articles..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-8 py-2 text-base sm:text-sm rounded-lg border border-gray-200 dark:border-gray-800 bg-transparent text-gray-900 dark:text-white placeholder-gray-400 focus:outline-hidden focus:border-orange-500 transition-colors"
+            className="w-full h-11 pl-9 pr-10 text-base sm:text-sm rounded-lg border border-gray-200 dark:border-gray-800 bg-transparent text-gray-900 dark:text-white placeholder-gray-400 focus:outline-hidden focus:border-orange-500 transition-colors"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery("")}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-0.5"
+              className="absolute right-0 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
               aria-label="Clear search"
             >
               <X className="w-3.5 h-3.5" />
@@ -174,7 +193,7 @@ export function BlogHomeView({ categories, allPosts }: BlogHomeViewProps) {
           {topicSections.map(({ category, posts }) => (
             <section key={category._id}>
               {/* Category Header */}
-              <div className="flex items-baseline justify-between mb-8 pb-3 border-b border-gray-200 dark:border-gray-800">
+              <div data-reveal className="flex items-baseline justify-between mb-8 pb-3 border-b border-gray-200 dark:border-gray-800">
                 <div>
                   <h2 className="text-2xl font-semibold text-gray-900 dark:text-white tracking-tight">
                     {category.title}
@@ -188,7 +207,7 @@ export function BlogHomeView({ categories, allPosts }: BlogHomeViewProps) {
 
                 <Link
                   href={`/category/${category.slug}`}
-                  className="text-sm font-medium text-orange-500 hover:text-orange-600 transition-colors shrink-0 ml-4 active:scale-95"
+                  className="inline-flex items-center min-h-[44px] px-2 -mr-2 text-sm font-medium text-orange-500 hover:text-orange-600 transition-colors shrink-0 ml-4 active:scale-95"
                 >
                   View all →
                 </Link>
@@ -202,6 +221,19 @@ export function BlogHomeView({ categories, allPosts }: BlogHomeViewProps) {
               </div>
             </section>
           ))}
+
+          {uncategorizedPosts.length > 0 && (
+            <section>
+              <div data-reveal className="mb-8 pb-3 border-b border-gray-200 dark:border-gray-800">
+                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white tracking-tight">More articles</h2>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {uncategorizedPosts.map((post) => (
+                  <ArticleCard key={post._id} post={post} />
+                ))}
+              </div>
+            </section>
+          )}
         </div>
       )}
     </div>
@@ -212,15 +244,18 @@ function ArticleCard({ post }: { post: BlogPost }) {
   return (
     <Link
       href={`/blog/${post.slug}`}
-      className="group flex flex-col active:scale-[0.99] transition-transform duration-150"
+      data-reveal
+      className="card-lift card-lift-flat group flex flex-col rounded-xl"
     >
-      {/* Clean Aspect-Ratio Thumbnail (no hover zoom slop) */}
-      <div className="relative aspect-video w-full rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800 mb-4 border border-gray-200/60 dark:border-gray-800/60">
-        {post.image ? (
-          <Image
-            src={urlFor(post.image).width(600).height(340).url()}
-            alt={post.title}
+      {/* Thumbnail morphs into the post's hero image on navigation (same ViewTransition name) */}
+      <ViewTransition name={`cover-${post.slug}`} share="morph" default="none">
+      <div className="card-lift-thumb relative aspect-video w-full rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800 mb-4 border border-gray-200/60 dark:border-gray-800/60">
+        {hasImageAsset(post.image) ? (
+          <SanityImage
+            image={post.image}
+            alt=""
             fill
+            aspectRatio={16 / 9}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className="object-cover"
           />
@@ -232,20 +267,15 @@ function ArticleCard({ post }: { post: BlogPost }) {
           </div>
         )}
       </div>
+      </ViewTransition>
 
       <div className="flex flex-col flex-1">
         <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-2">
           {post.date && (
-            <time dateTime={post.date}>
-              {new Date(post.date).toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-              })}
-            </time>
+            <time dateTime={post.date}>{formatDate(post.date)}</time>
           )}
-          {post.date && <span>·</span>}
-          <span>{post.readTime || "5 min read"}</span>
+          {post.date && <span aria-hidden="true">·</span>}
+          <span>{readTimeOf(post)}</span>
         </div>
 
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 group-hover:text-orange-500 transition-colors line-clamp-2 leading-snug">

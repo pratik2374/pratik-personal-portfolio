@@ -1,22 +1,24 @@
 import { Metadata } from "next"
 import Link from "next/link"
 import { Mail, Globe, MessageSquare, Send } from "lucide-react"
+import { getProfile } from "@/lib/profile"
 
 export const metadata: Metadata = {
-  title: "Contact & Editorial | Pratik Gond",
+  title: "Contact & Editorial",
   description: "Get in touch with Pratik Gond for technical inquiries, speaking, engineering consulting, or editorial feedback.",
   alternates: {
-    canonical: "https://blog.pratikgond.tech/contact",
+    canonical: "/contact",
   },
 }
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const profile = await getProfile()
   return (
     <div className="container mx-auto px-4 py-16 max-w-4xl">
       <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8" aria-label="Breadcrumb">
         <Link
           href="/"
-          className="inline-flex items-center gap-1 hover:text-orange-500 transition-colors min-h-[44px] py-2 active:scale-[0.98] duration-150"
+          className="inline-flex items-center gap-1 hover:text-orange-500 transition-colors min-h-[44px] min-w-[44px] py-2 active:scale-[0.98] duration-150"
         >
           Home
         </Link>
@@ -49,10 +51,10 @@ export default function ContactPage() {
             </p>
           </div>
           <a
-            href="mailto:pratik.gond.dev@gmail.com"
+            href={`mailto:${profile.email}`}
             className="inline-flex items-center justify-center gap-2 px-6 py-3 min-h-[44px] rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-medium active:scale-[0.98] transition-all duration-150"
           >
-            <span>pratik.gond.dev@gmail.com</span>
+            <span>{profile.email}</span>
             <Send className="w-4 h-4" />
           </a>
         </div>
@@ -91,7 +93,7 @@ export default function ContactPage() {
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <a
-            href="https://github.com/pratikgond"
+            href={profile.github}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-4 p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#151515] hover:border-orange-500 active:scale-[0.98] transition-all duration-150"
@@ -101,12 +103,12 @@ export default function ContactPage() {
             </svg>
             <div>
               <div className="font-semibold text-gray-900 dark:text-white">GitHub</div>
-              <div className="text-xs text-gray-500">@pratikgond · Code repositories &amp; PRs</div>
+              <div className="text-xs text-gray-500">@pratik2374 · Code repositories &amp; PRs</div>
             </div>
           </a>
 
           <a
-            href="https://linkedin.com/in/pratikgond"
+            href={profile.linkedin}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-4 p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#151515] hover:border-orange-500 active:scale-[0.98] transition-all duration-150"

@@ -1,55 +1,61 @@
-import { client, urlFor, BlogPost, Category } from "@/lib/sanity"
+import { cache, ViewTransition } from "react"
 import Link from "next/link"
-import Image from "next/image"
 import { notFound } from "next/navigation"
-import { Metadata } from "next"
+import type { Metadata } from "next"
 import { ArrowLeft, Clock, Calendar, Tag, ArrowRight } from "lucide-react"
+import {
+  sanityFetch,
+  formatDate,
+  readTimeOf,
+  hasImageAsset,
+  PUBLISHED,
+  POST_CARD_FIELDS,
+  SITE_URL,
+  type BlogPost,
+  type Category,
+} from "@/lib/sanity"
+import { jsonLd } from "@/lib/seo"
+import { PERSON_ID } from "@/lib/profile"
+import { stegaClean } from "@sanity/client/stega"
+import { SanityImage } from "@/components/SanityImage"
 
 export const revalidate = 3600
 
-async function getCategoryData(slug: string): Promise<{ category: Category; posts: BlogPost[] } | null> {
-  const categoryQuery = `*[_type == "category" && slug.current == $slug && !(_id in path("drafts.**"))][0] {
-    _id,
-    title,
-    "slug": slug.current,
-    description,
-    color,
-    order
-  }`
+type PageProps = { params: Promise<{ slug: string }> }
 
-  const category = await client.fetch(categoryQuery, { slug })
-  if (!category) return null
-
-  const postsQuery = `*[_type == "blog" && category._ref == $categoryId && !(_id in path("drafts.**"))] | order(date desc) {
-    _id,
-    title,
-    "slug": slug.current,
-    summary,
-    date,
-    readTime,
-    tags,
-    image,
-    category->{ title, "slug": slug.current, color }
-  }`
-
-  const posts = await client.fetch(postsQuery, { categoryId: category._id })
+const getCategoryData = cache(async (slug: string): Promise<{ category: Category; posts: BlogPost[] } | null> => {
+  const data = await sanityFetch<(Category & { posts: BlogPost[] }) | null>(
+    `*[_type == "category" && slug.current == $slug && ${PUBLISHED}][0] {
+      _id,
+      title,
+      "slug": slug.current,
+      description,
+      color,
+      order,
+      "posts": *[_type == "blog" && references(^._id) && ${PUBLISHED} && defined(slug.current)] | order(date desc) { ${POST_CARD_FIELDS} }
+    }`,
+    { slug }
+  )
+  if (!data) return null
+  const { posts, ...category } = data
   return { category, posts }
+})
+
+export async function generateStaticParams() {
+  const slugs = await sanityFetch<string[]>(`*[_type == "category" && ${PUBLISHED} && defined(slug.current)].slug.current`)
+  return slugs.map((slug) => ({ slug }))
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ slug: string }>
-}): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params
   const data = await getCategoryData(slug)
   if (!data) return { title: "Category Not Found" }
 
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://blog.pratikgond.tech"
-  const catUrl = `${baseUrl}/category/${slug}`
+  const catUrl = `${SITE_URL}/category/${slug}`
 
   return {
-    title: `${data.category.title} | Pratik Gond Blog`,
+    // The root layout's title template appends " | Pratik Gond".
+    title: data.category.title,
     description:
       data.category.description ||
       `Articles and engineering deep dives in ${data.category.title} by Pratik Gond.`,
@@ -65,11 +71,7 @@ export async function generateMetadata({
   }
 }
 
-export default async function CategoryPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>
-}) {
+export default async function CategoryPage({ params }: PageProps) {
   const { slug } = await params
   const data = await getCategoryData(slug)
 
@@ -78,26 +80,47 @@ export default async function CategoryPage({
   }
 
   const { category, posts } = data
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://blog.pratikgond.tech"
-
-  const jsonLd = {
+  const catUrl = `${SITE_URL}/category/${slug}`
+  const structuredData = {
     "@context": "https://schema.org",
-    "@type": "CollectionPage",
-    "name": category.title,
-    "description": category.description || "",
-    "url": `${baseUrl}/category/${slug}`,
-    "publisher": {
-      "@type": "Person",
-      "name": "Pratik Gond",
-      "url": "https://pratikgond.tech",
-    },
+    "@graph": [
+      {
+        "@type": "CollectionPage",
+        "@id": `${catUrl}#page`,
+        "name": stegaClean(category.title),
+        "description": stegaClean(category.description) || "",
+        "url": catUrl,
+        "inLanguage": "en-US",
+        "isPartOf": { "@id": `${SITE_URL}/#website` },
+        "author": { "@id": PERSON_ID },
+        "breadcrumb": { "@id": `${catUrl}#breadcrumb` },
+        "mainEntity": {
+          "@type": "ItemList",
+          "numberOfItems": posts.length,
+          "itemListElement": posts.map((p, i) => ({
+            "@type": "ListItem",
+            "position": i + 1,
+            "url": `${SITE_URL}/blog/${p.slug}`,
+            "name": stegaClean(p.title),
+          })),
+        },
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": `${catUrl}#breadcrumb`,
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": SITE_URL },
+          { "@type": "ListItem", "position": 2, "name": stegaClean(category.title), "item": catUrl },
+        ],
+      },
+    ],
   }
 
   return (
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLd(structuredData) }}
       />
 
       <div className="container mx-auto px-4 py-16 max-w-6xl">
@@ -110,8 +133,8 @@ export default async function CategoryPage({
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>All Articles</span>
           </Link>
-          <span>/</span>
-          <span className="text-gray-900 dark:text-white font-medium">{category.title}</span>
+          <span aria-hidden="true">/</span>
+          <span aria-current="page" className="text-gray-900 dark:text-white font-medium">{category.title}</span>
         </nav>
 
         {/* Category Header */}
@@ -151,15 +174,18 @@ export default async function CategoryPage({
               <Link
                 key={post._id}
                 href={`/blog/${post.slug}`}
-                className="group flex flex-col rounded-2xl border border-gray-200/80 dark:border-gray-800/80 bg-white dark:bg-[#151515] overflow-hidden active:scale-[0.99] transition-transform duration-150"
+                data-reveal
+                className="card-lift group flex flex-col rounded-2xl border border-gray-200/80 dark:border-gray-800/80 hover:border-orange-500/40 bg-white dark:bg-[#151515] overflow-hidden"
               >
-                {/* Clean Thumbnail without hover scale jump */}
+                {/* Thumbnail morphs into the post's hero image on navigation */}
+                <ViewTransition name={`cover-${post.slug}`} share="morph" default="none">
                 <div className="relative aspect-video w-full overflow-hidden bg-gray-100 dark:bg-gray-800">
-                  {post.image ? (
-                    <Image
-                      src={urlFor(post.image).width(700).height(394).url()}
-                      alt={post.title}
+                  {hasImageAsset(post.image) ? (
+                    <SanityImage
+                      image={post.image}
+                      alt=""
                       fill
+                      aspectRatio={16 / 9}
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       className="object-cover"
                     />
@@ -171,6 +197,7 @@ export default async function CategoryPage({
                     </div>
                   )}
                 </div>
+                </ViewTransition>
 
                 <div className="p-6 flex flex-col flex-1 justify-between">
                   <div>
@@ -178,19 +205,13 @@ export default async function CategoryPage({
                       {post.date && (
                         <div className="flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
-                          <time dateTime={post.date}>
-                            {new Date(post.date).toLocaleDateString("en-US", {
-                              month: "short",
-                              day: "numeric",
-                              year: "numeric",
-                            })}
-                          </time>
+                          <time dateTime={post.date}>{formatDate(post.date)}</time>
                         </div>
                       )}
-                      <span>·</span>
+                      {post.date && <span aria-hidden="true">·</span>}
                       <div className="flex items-center gap-1">
                         <Clock className="w-3 h-3" />
-                        <span>{post.readTime || "5 min read"}</span>
+                        <span>{readTimeOf(post)}</span>
                       </div>
                     </div>
 

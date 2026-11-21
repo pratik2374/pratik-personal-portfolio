@@ -1,24 +1,17 @@
-import { MetadataRoute } from 'next'
+import type { MetadataRoute } from 'next'
+import { SITE_URL } from '@/lib/sanity'
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://blog.pratikgond.tech'
-
   return {
     rules: [
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/api/', '/_next/'],
-      },
-      {
-        userAgent: 'Googlebot',
-        allow: '/',
-      },
-      {
-        userAgent: 'Bingbot',
-        allow: '/',
+        // Never block /_next/: crawlers need the CSS/JS there to render pages.
+        disallow: ['/api/'],
       },
     ],
-    sitemap: `${baseUrl}/sitemap.xml`,
+    sitemap: `${SITE_URL}/sitemap.xml`,
+    host: SITE_URL,
   }
 }

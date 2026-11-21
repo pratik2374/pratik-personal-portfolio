@@ -1,33 +1,42 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef } from "react"
 
+/**
+ * Scroll progress bar. Writes a GPU-friendly transform straight to the DOM once
+ * per animation frame, so scrolling never re-renders React or triggers layout.
+ */
 export function ReadingProgressBar() {
-  const [scrollProgress, setScrollProgress] = useState(0)
+  const barRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const handleScroll = () => {
-      const totalScroll = document.documentElement.scrollTop
-      const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight
-      if (windowHeight > 0) {
-        const scrollPercent = (totalScroll / windowHeight) * 100
-        setScrollProgress(Math.min(100, Math.max(0, scrollPercent)))
-      }
+    let frame: number | null = null
+
+    const update = () => {
+      frame = null
+      const el = document.documentElement
+      const scrollable = el.scrollHeight - el.clientHeight
+      const progress = scrollable > 0 ? Math.min(1, Math.max(0, el.scrollTop / scrollable)) : 0
+      if (barRef.current) barRef.current.style.transform = `scaleX(${progress})`
     }
 
-    window.addEventListener("scroll", handleScroll, { passive: true })
-    return () => window.removeEventListener("scroll", handleScroll)
+    const onScroll = () => {
+      if (frame === null) frame = requestAnimationFrame(update)
+    }
+
+    update()
+    window.addEventListener("scroll", onScroll, { passive: true })
+    window.addEventListener("resize", onScroll, { passive: true })
+    return () => {
+      window.removeEventListener("scroll", onScroll)
+      window.removeEventListener("resize", onScroll)
+      if (frame !== null) cancelAnimationFrame(frame)
+    }
   }, [])
 
   return (
-    <div
-      className="fixed top-0 left-0 right-0 h-1 bg-transparent z-50 pointer-events-none"
-      aria-hidden="true"
-    >
-      <div
-        className="h-full bg-orange-500 transition-[width] duration-75 ease-out"
-        style={{ width: `${scrollProgress}%` }}
-      />
+    <div className="fixed top-0 left-0 right-0 h-1 z-50 pointer-events-none" aria-hidden="true">
+      <div ref={barRef} className="h-full w-full bg-orange-500 origin-left will-change-transform" style={{ transform: "scaleX(0)" }} />
     </div>
   )
 }

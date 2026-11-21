@@ -1,35 +1,26 @@
 "use client"
 
 import React, { useEffect, useState, useRef } from "react"
-import { GitFork, Copy, Check } from "lucide-react"
+import { GitFork } from "lucide-react"
+import { CopyButton } from "./CopyButton"
 
 interface MermaidDiagramProps {
   chart: string
 }
 
-export function isMermaidCode(language?: string, code?: string): boolean {
-  if (language?.toLowerCase() === "mermaid") return true
-  if (!code) return false
-  const trimmed = code.trim()
-  return (
-    trimmed.startsWith("flowchart") ||
-    trimmed.startsWith("sequenceDiagram") ||
-    trimmed.startsWith("graph") ||
-    trimmed.startsWith("classDiagram") ||
-    trimmed.startsWith("stateDiagram") ||
-    trimmed.startsWith("erDiagram") ||
-    trimmed.startsWith("journey") ||
-    trimmed.startsWith("gantt") ||
-    trimmed.startsWith("pie") ||
-    trimmed.startsWith("mindmap")
-  )
+interface MermaidApi {
+  initialize: (config: Record<string, unknown>) => void
+  render: (id: string, text: string) => Promise<{ svg: string }>
 }
 
 declare global {
   interface Window {
-    mermaid?: any
+    mermaid?: MermaidApi
   }
 }
+
+// Must match the bundled public/vendor/mermaid.min.js so the fallback behaves the same.
+const MERMAID_CDN_FALLBACK = "https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.min.js"
 
 let mermaidScriptPromise: Promise<void> | null = null
 
@@ -46,7 +37,7 @@ function loadMermaidScript(): Promise<void> {
     script.onerror = () => {
       // Fallback to CDN if local vendor script fails
       const fallbackScript = document.createElement("script")
-      fallbackScript.src = "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"
+      fallbackScript.src = MERMAID_CDN_FALLBACK
       fallbackScript.async = true
       fallbackScript.onload = () => resolve()
       fallbackScript.onerror = (e) => reject(e)
@@ -60,7 +51,6 @@ function loadMermaidScript(): Promise<void> {
 
 export function MermaidDiagram({ chart }: MermaidDiagramProps) {
   const [svgContent, setSvgContent] = useState<string>("")
-  const [copied, setCopied] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -72,14 +62,14 @@ export function MermaidDiagram({ chart }: MermaidDiagramProps) {
         await loadMermaidScript()
         if (!isMounted || !window.mermaid) return
 
-        const isDark =
-          document.documentElement.classList.contains("dark") ||
-          window.matchMedia("(prefers-color-scheme: dark)").matches
+        // next-themes puts the resolved theme on <html> as a class, so the class is
+        // the single source of truth (the OS setting may disagree with the user's pick).
+        const isDark = document.documentElement.classList.contains("dark")
 
         window.mermaid.initialize({
           startOnLoad: false,
           theme: isDark ? "dark" : "default",
-          securityLevel: "loose",
+          securityLevel: "strict",
           fontFamily: "inherit",
           themeVariables: isDark
             ? {
@@ -109,61 +99,59 @@ export function MermaidDiagram({ chart }: MermaidDiagramProps) {
           setSvgContent(svg)
           setError(null)
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.warn("Failed to render Mermaid diagram:", err)
         if (isMounted) {
-          setError(err?.message || "Diagram render error")
+          setError(err instanceof Error ? err.message : "Diagram render error")
         }
       }
     }
 
-    renderChart()
-
-    // Re-render when theme changes (light/dark switch)
-    const observer = new MutationObserver(() => {
+    // Mermaid is ~3.5 MB, so only fetch and render once the diagram is about to scroll into view.
+    let renderedDark: boolean | null = null
+    const renderIfNeeded = () => {
+      const isDark = document.documentElement.classList.contains("dark")
+      if (renderedDark === isDark) return
+      renderedDark = isDark
       renderChart()
+    }
+
+    const visibility = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          visibility.disconnect()
+          renderIfNeeded()
+        }
+      },
+      { rootMargin: "600px 0px" }
+    )
+    if (containerRef.current) visibility.observe(containerRef.current)
+
+    // Re-render only when light/dark actually flips, not on every class change on <html>.
+    const themeObserver = new MutationObserver(() => {
+      if (renderedDark !== null) renderIfNeeded()
     })
-    observer.observe(document.documentElement, {
+    themeObserver.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ["class"],
     })
 
     return () => {
       isMounted = false
-      observer.disconnect()
+      visibility.disconnect()
+      themeObserver.disconnect()
     }
   }, [chart])
 
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(chart)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    } catch (err) {
-      console.error("Failed to copy diagram code: ", err)
-    }
-  }
-
   return (
-    <div className="my-8 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#141414] shadow-md group">
+    <div className="not-prose my-8 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#141414] shadow-sm">
       {/* Sleek compact header bar */}
-      <div className="flex items-center justify-between px-3.5 py-1.5 bg-gray-100/90 dark:bg-[#1e1e1e] border-b border-gray-200 dark:border-gray-800 text-xs font-mono h-8">
+      <div className="flex items-center justify-between pl-4 pr-2 bg-gray-50 dark:bg-[#1e1e1e] border-b border-gray-200 dark:border-gray-800 text-xs font-mono h-10">
         <div className="flex items-center gap-1.5 text-orange-500 dark:text-orange-400 font-medium tracking-wider text-[11px] uppercase">
           <GitFork className="w-3.5 h-3.5" />
           <span>DIAGRAM</span>
         </div>
-        <button
-          onClick={handleCopy}
-          className="w-7 h-7 flex items-center justify-center rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200/60 dark:hover:bg-white/10 active:scale-90 transition-all duration-150 cursor-pointer"
-          title={copied ? "Copied!" : "Copy diagram source"}
-          aria-label={copied ? "Copied!" : "Copy diagram source"}
-        >
-          {copied ? (
-            <Check className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
-          ) : (
-            <Copy className="w-3.5 h-3.5" />
-          )}
-        </button>
+        <CopyButton text={chart} label="Copy diagram source" tone="auto" />
       </div>
 
       {/* Rendered SVG Container */}

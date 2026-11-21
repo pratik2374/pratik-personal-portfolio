@@ -1,6 +1,6 @@
 export default function BlogPostLoading() {
   return (
-    <article className="pb-24 animate-pulse">
+    <article className="pb-24 motion-safe:animate-pulse" role="status" aria-label="Loading article">
       {/* Top Header & Breadcrumb Skeleton */}
       <header className="border-b border-gray-200/80 dark:border-gray-800/80 bg-gray-50/50 dark:bg-[#131313]/50 py-12">
         <div className="container mx-auto px-4 max-w-4xl">
@@ -66,7 +66,7 @@ export default function BlogPostLoading() {
           </aside>
 
           {/* Main Reading Column Skeleton */}
-          <main className="w-full max-w-3xl mx-auto min-w-0 space-y-8">
+          <div className="w-full max-w-3xl mx-auto min-w-0 space-y-8">
             {/* Paragraph Block 1 */}
             <div className="space-y-3">
               <div className="h-4 w-full bg-gray-200 dark:bg-gray-800 rounded-md" />
@@ -94,7 +94,7 @@ export default function BlogPostLoading() {
               <div className="h-3.5 w-1/2 bg-gray-200 dark:bg-gray-800 rounded-md" />
               <div className="h-3.5 w-3/5 bg-gray-200 dark:bg-gray-800 rounded-md" />
             </div>
-          </main>
+          </div>
 
           {/* Right Column Balancer Spacer */}
           <div className="hidden xl:block" aria-hidden="true" />

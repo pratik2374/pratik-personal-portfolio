@@ -61,20 +61,28 @@ async function getRelatedPosts(currentId: string, categoryRef?: string): Promise
   return client.fetch(query, { currentId, categoryRef })
 }
 
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "")
+}
+
+function getBlockPlainText(block: any): string {
+  if (!block?.children || !Array.isArray(block.children)) return ""
+  return block.children.map((c: any) => c.text || "").join("").trim()
+}
+
 function extractHeadings(content: any[]): TocHeading[] {
   if (!Array.isArray(content)) return []
   const headings: TocHeading[] = []
 
   for (const block of content) {
     if (block._type === "block" && (block.style === "h2" || block.style === "h3")) {
-      const text = block.children?.map((c: any) => c.text).join("") || ""
-      if (text.trim()) {
-        const id = text
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, "-")
-          .replace(/(^-|-$)/g, "")
+      const text = getBlockPlainText(block)
+      if (text) {
         headings.push({
-          id,
+          id: slugify(text),
           text,
           level: block.style === "h2" ? 2 : 3,
         })
@@ -246,12 +254,9 @@ export default async function BlogPostPage({
       },
     },
     block: {
-      h2: ({ children }: any) => {
-        const text = String(children)
-        const id = text
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, "-")
-          .replace(/(^-|-$)/g, "")
+      h2: ({ value, children }: any) => {
+        const text = getBlockPlainText(value)
+        const id = slugify(text)
         return (
           <h2 id={id} className="scroll-mt-24 group flex items-center gap-2">
             <span>{children}</span>
@@ -265,12 +270,9 @@ export default async function BlogPostPage({
           </h2>
         )
       },
-      h3: ({ children }: any) => {
-        const text = String(children)
-        const id = text
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, "-")
-          .replace(/(^-|-$)/g, "")
+      h3: ({ value, children }: any) => {
+        const text = getBlockPlainText(value)
+        const id = slugify(text)
         return (
           <h3 id={id} className="scroll-mt-24 group flex items-center gap-2">
             <span>{children}</span>

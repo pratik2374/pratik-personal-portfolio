@@ -48,6 +48,12 @@ export function TableOfContents({ headings, variant = "desktop" }: TableOfConten
         const windowHeight = window.innerHeight
         const docHeight = document.documentElement.scrollHeight
 
+        // Near top of document: activate first heading
+        if (scrollY < 250) {
+          setActiveId(headings[0]?.id || "")
+          return
+        }
+
         // Bottom of document edge case: activate the last heading
         if (scrollY + windowHeight >= docHeight - 100) {
           const lastHeading = headings[headings.length - 1]
@@ -57,8 +63,10 @@ export function TableOfContents({ headings, variant = "desktop" }: TableOfConten
           }
         }
 
-        // Trigger threshold: 120px below top of viewport (clears sticky header)
-        const triggerY = 120
+        // Natural reading focus trigger threshold (~260px from top).
+        // This activates the heading as soon as it enters the comfortable upper reading zone,
+        // ensuring the title is clearly in scope while reading rather than waiting until it leaves the screen.
+        const triggerY = Math.min(Math.max(windowHeight * 0.32, 200), 280)
         let currentId = headings[0]?.id || ""
 
         for (let i = 0; i < headings.length; i++) {

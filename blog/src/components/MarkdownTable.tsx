@@ -67,12 +67,11 @@ export function isMarkdownTable(raw: string): boolean {
   return /^\|?(\s*:?-+:?\s*\|)+\s*:?-+:?\s*\|?$/.test(lines[1])
 }
 
-// Parses simple inline formatting: **bold**, *italic*, `code`, and $math$
-function renderFormattedCell(text: string): React.ReactNode {
+// Inline formatting: **bold**, *italic*, `code`, and $math$
+function renderInlineText(text: string): React.ReactNode {
   if (!text) return null
 
-  // Tokenize regex matching **bold**, *italic*, `code`, $math$
-  const regex = /(\*\*.*?\*\*|\*.*?\*|`.*?`|\$.*?\$)/g
+  const regex = /(\*\*.*?\*\*|\*.*?\*|`.*?`|\$.*?\$|→)/g
   const parts = text.split(regex)
 
   return parts.map((part, index) => {
@@ -87,7 +86,7 @@ function renderFormattedCell(text: string): React.ReactNode {
       return (
         <code
           key={index}
-          className="text-orange-500 dark:text-orange-400 font-mono text-xs bg-gray-100 dark:bg-gray-800/80 px-1.5 py-0.5 rounded-md"
+          className="text-orange-500 dark:text-orange-400 font-mono text-[11px] bg-gray-100 dark:bg-gray-800/80 px-1.5 py-0.5 rounded-md"
         >
           {part.slice(1, -1)}
         </code>
@@ -95,8 +94,15 @@ function renderFormattedCell(text: string): React.ReactNode {
     }
     if (part.startsWith("$") && part.endsWith("$") && part.length >= 2) {
       return (
-        <span key={index} className="font-mono text-xs text-orange-400 font-medium">
+        <span key={index} className="font-serif italic font-semibold text-orange-400">
           {part.slice(1, -1)}
+        </span>
+      )
+    }
+    if (part === "→") {
+      return (
+        <span key={index} className="text-gray-400 dark:text-gray-500 px-1 font-bold">
+          →
         </span>
       )
     }
@@ -109,6 +115,44 @@ function renderFormattedCell(text: string): React.ReactNode {
     }
     return part
   })
+}
+
+// Renders cell with optional status pills for rating words (High, Low, Weak, etc.)
+function renderCell(text: string, isFirstCol: boolean): React.ReactNode {
+  if (!text) return null
+  const trimmed = text.trim()
+
+  if (!isFirstCol) {
+    // Positive ratings: High, Strong, Excellent, Lowest latency
+    if (/^(high|strong|excellent|lowest)(\s*\(.*?\))?$/i.test(trimmed)) {
+      return (
+        <span className="inline-flex items-center gap-1.5 font-medium text-emerald-600 dark:text-emerald-400 text-xs">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+          <span>{renderInlineText(text)}</span>
+        </span>
+      )
+    }
+    // Moderate ratings: Medium, Low, Low-Medium
+    if (/^(medium|low|low[-–]medium)(\s*\(.*?\))?$/i.test(trimmed)) {
+      return (
+        <span className="inline-flex items-center gap-1.5 font-medium text-amber-600 dark:text-amber-400 text-xs">
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+          <span>{renderInlineText(text)}</span>
+        </span>
+      )
+    }
+    // Negative ratings: Weak, Poor, None
+    if (/^(weak|poor|none)(\s*\(.*?\))?$/i.test(trimmed)) {
+      return (
+        <span className="inline-flex items-center gap-1.5 font-medium text-rose-500 dark:text-rose-400 text-xs">
+          <span className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" />
+          <span>{renderInlineText(text)}</span>
+        </span>
+      )
+    }
+  }
+
+  return renderInlineText(text)
 }
 
 export function MarkdownTable({ code }: MarkdownTableProps) {
@@ -128,10 +172,10 @@ export function MarkdownTable({ code }: MarkdownTableProps) {
   if (!parsed) return null
 
   return (
-    <div className="my-8 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#141414] shadow-md group">
+    <div className="my-8 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#121213] shadow-md group">
       {/* Sleek compact header bar */}
-      <div className="flex items-center justify-between px-3.5 py-1.5 bg-gray-100/90 dark:bg-[#1e1e1e] border-b border-gray-200 dark:border-gray-800 text-xs font-mono h-8">
-        <div className="flex items-center gap-1.5 text-orange-500 dark:text-orange-400 font-medium tracking-wider text-[11px] uppercase">
+      <div className="flex items-center justify-between px-4 py-1.5 bg-gray-100/90 dark:bg-[#1b1b1c] border-b border-gray-200 dark:border-gray-800 text-xs font-mono h-8">
+        <div className="flex items-center gap-2 text-orange-500 dark:text-orange-400 font-semibold tracking-wider text-[11px] uppercase">
           <Table className="w-3.5 h-3.5" />
           <span>TABLE</span>
         </div>
@@ -150,24 +194,24 @@ export function MarkdownTable({ code }: MarkdownTableProps) {
       </div>
 
       {/* Styled Responsive Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-xs md:text-sm border-collapse">
+      <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-800">
+        <table className="w-full min-w-[640px] text-left text-xs md:text-sm border-collapse">
           <thead>
-            <tr className="bg-gray-50 dark:bg-[#18181a] border-b border-gray-200 dark:border-gray-800">
+            <tr className="bg-gray-50/90 dark:bg-[#161618] border-b-2 border-gray-200 dark:border-gray-800">
               {parsed.headers.map((header, idx) => {
                 const align = parsed.alignments[idx] || "left"
                 return (
                   <th
                     key={idx}
-                    className={`px-4 py-3 font-semibold text-gray-900 dark:text-white text-xs uppercase tracking-wider ${
+                    className={`px-4 py-3.5 font-bold text-gray-900 dark:text-gray-200 text-[11px] md:text-xs uppercase tracking-wider border-r border-gray-200/60 dark:border-gray-800/60 last:border-r-0 align-bottom ${
                       align === "center"
                         ? "text-center"
                         : align === "right"
                         ? "text-right"
                         : "text-left"
-                    }`}
+                    } ${idx === 0 ? "bg-gray-100/50 dark:bg-white/[0.02]" : ""}`}
                   >
-                    {renderFormattedCell(header)}
+                    {renderInlineText(header)}
                   </th>
                 )
               })}
@@ -177,14 +221,19 @@ export function MarkdownTable({ code }: MarkdownTableProps) {
             {parsed.rows.map((row, rowIdx) => (
               <tr
                 key={rowIdx}
-                className="hover:bg-gray-50/60 dark:hover:bg-white/[0.02] transition-colors"
+                className="even:bg-gray-50/40 dark:even:bg-white/[0.015] hover:bg-orange-500/[0.04] dark:hover:bg-orange-500/[0.03] transition-colors"
               >
                 {row.map((cell, colIdx) => {
                   const align = parsed.alignments[colIdx] || "left"
+                  const isFirstCol = colIdx === 0
                   return (
                     <td
                       key={colIdx}
-                      className={`px-4 py-3 text-gray-700 dark:text-gray-300 leading-relaxed align-top ${
+                      className={`px-4 py-3.5 leading-relaxed border-r border-gray-100 dark:border-gray-800/40 last:border-r-0 align-top ${
+                        isFirstCol
+                          ? "font-medium text-gray-900 dark:text-white whitespace-nowrap bg-gray-50/30 dark:bg-white/[0.01]"
+                          : "text-gray-700 dark:text-gray-300 text-xs md:text-sm"
+                      } ${
                         align === "center"
                           ? "text-center"
                           : align === "right"
@@ -192,7 +241,7 @@ export function MarkdownTable({ code }: MarkdownTableProps) {
                           : "text-left"
                       }`}
                     >
-                      {renderFormattedCell(cell)}
+                      {renderCell(cell, isFirstCol)}
                     </td>
                   )
                 })}

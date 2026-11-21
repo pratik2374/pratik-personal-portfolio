@@ -7,9 +7,6 @@
       "hosting": {
         "portfolio": [
           "personal-portfolio-ac2cd"
-        ],
-        "cms": [
-          "portfolio-cms-admin"
         ]
       }
     }

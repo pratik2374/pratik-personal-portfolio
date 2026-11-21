@@ -1,11 +1,6 @@
-portfolio/.agent
-.claude/
-.firebase/
-docs
-projects/
-scripts/
-.firebaserc
-firebase.json
-firebase.rules
-firestore.rules
-storage.rules
+/portfolio/.agent
+/.claude/
+/.firebase/
+/docs
+/projects/
+/scripts/
